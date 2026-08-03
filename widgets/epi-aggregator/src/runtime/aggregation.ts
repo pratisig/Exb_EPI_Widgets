@@ -19,7 +19,8 @@ export function parseEpiDate(value: unknown): Date | null {
   const text = String(value).trim()
   if (!text) return null
   const native = new Date(text)
-  if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/.test(text) && !isNaN(native.getTime())) return native
+  // Resolve slash dates before the browser parser: 01/02/2023 is 1 February
+  // for the field-team convention, whereas browser parsers usually make it January 2.
   let m = text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})(?:\s+(\d{1,2}):?(\d{2})?)?$/)
   if (m) {
     // Ambiguous slash dates are interpreted as day/month, the convention used by most field teams.
