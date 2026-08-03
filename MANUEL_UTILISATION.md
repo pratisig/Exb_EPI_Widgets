@@ -66,7 +66,21 @@ Cette option est particulièrement utile pour comparer plusieurs flambées, mêm
 
 Utiliser le mois pour la situation report, le trimestre pour les revues programmatiques et l'année pour les tendances historiques. Le filtre utilise toujours une borne de fin exclusive afin d'éviter les doublons entre périodes.
 
-## 5. Lire les résultats
+## 5. Statistiques disponibles
+
+Le widget peut agréger un champ numérique par période. Le choix se fait dans **Statistique** et le champ dans **Champ numérique / mesure**.
+
+- **Compter les enregistrements** : nombre de lignes avec une date valide ; recommandé pour une courbe de cas.
+- **Somme** : total d'un champ numérique, par exemple décès ou doses administrées.
+- **Moyenne** : moyenne arithmétique des valeurs non vides.
+- **Médiane** : valeur centrale, plus robuste que la moyenne face aux valeurs extrêmes.
+- **Minimum / Maximum** : bornes observées dans la période.
+- **Première valeur / Dernière valeur** : première ou dernière valeur dans l'ordre retourné par le service ; utiliser uniquement avec un ordre de requête documenté.
+- **Valeurs distinctes** : nombre de valeurs numériques différentes du champ. Pour compter des individus distincts, utiliser un identifiant numérique ou préparer une agrégation dédiée.
+
+Les statistiques autres que le comptage ignorent les valeurs non numériques ou vides. Le filtre temporel continue à utiliser le champ date et non le champ de mesure.
+
+## 6. Lire les résultats
 
 Le bandeau de synthèse affiche :
 

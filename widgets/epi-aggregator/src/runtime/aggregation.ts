@@ -1,6 +1,6 @@
 /** Date and period utilities deliberately have no Experience Builder dependency.
  * They are also useful in tests and in future data-source adapters. */
-import { Period, WeekMode, DateConvention } from '../config'
+import { Period, WeekMode, DateConvention, Statistic } from '../config'
 
 export interface PeriodValue { key: string; label: string; start: Date; end: Date }
 
@@ -62,16 +62,41 @@ export function periodFor(date: Date, period: Period, weekMode: WeekMode = 'iso'
   const start = weekStart(date); return { key: `${w.year}-W${pad(w.week)}`, label: `${w.year} S${w.week}`, start, end: new Date(start.getTime() + 7 * 86400000) }
 }
 
-export interface AggregateRow extends PeriodValue { count: number; records: any[] }
-export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy'): { rows: AggregateRow[], invalid: number } {
-  const outbreak = parseEpiDate(outbreakStart, convention)
-  const groups = new Map<string, AggregateRow>(); let invalid = 0
+export interface AggregateRow extends PeriodValue { count: number; value: number; records: any[] }
+
+function numericValue(value: unknown): number | null {
+  if (typeof value === 'number' && isFinite(value)) return value
+  if (typeof value === 'string' && value.trim() !== '') {
+    const normalized = value.replace(/\s/g, '').replace(',', '.')
+    const n = Number(normalized); return isFinite(n) ? n : null
+  }
+  return null
+}
+
+function calculate(records: any[], valueField: string | undefined, statistic: Statistic): number {
+  if (statistic === 'count') return records.length
+  const values = records.map(record => { const attrs = record?.getData ? record.getData() : (record?.attributes || record); return valueField ? numericValue(attrs?.[valueField]) : null }).filter((v): v is number => v !== null)
+  if (statistic === 'distinct') return new Set(values).size
+  if (!values.length) return 0
+  if (statistic === 'sum') return values.reduce((a, b) => a + b, 0)
+  if (statistic === 'mean') return values.reduce((a, b) => a + b, 0) / values.length
+  if (statistic === 'min') return Math.min(...values)
+  if (statistic === 'max') return Math.max(...values)
+  if (statistic === 'first') return values[0]
+  if (statistic === 'last') return values[values.length - 1]
+  const sorted = [...values].sort((a, b) => a - b); const middle = Math.floor(sorted.length / 2)
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2
+}
+
+export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy', statistic: Statistic = 'count', valueField?: string): { rows: AggregateRow[], invalid: number } {
+  const outbreak = parseEpiDate(outbreakStart, convention); const groups = new Map<string, AggregateRow>(); let invalid = 0
   records.forEach(record => {
-    const attrs = record?.getData ? record.getData() : (record?.attributes || record)
-    const date = parseEpiDate(attrs?.[dateField], convention)
+    const attrs = record?.getData ? record.getData() : (record?.attributes || record); const date = parseEpiDate(attrs?.[dateField], convention)
     if (!date) { invalid++; return }
     const p = periodFor(date, period, weekMode, outbreak || undefined); const existing = groups.get(p.key)
-    if (existing) { existing.count++; existing.records.push(record) } else groups.set(p.key, { ...p, count: 1, records: [record] })
+    if (existing) { existing.count++; existing.records.push(record) } else groups.set(p.key, { ...p, count: 1, value: 0, records: [record] })
   })
-  return { rows: Array.from(groups.values()).sort((a, b) => a.start.getTime() - b.start.getTime()), invalid }
+  const rows = Array.from(groups.values()).sort((a, b) => a.start.getTime() - b.start.getTime())
+  rows.forEach(row => { row.value = calculate(row.records, valueField, statistic) })
+  return { rows, invalid }
 }
