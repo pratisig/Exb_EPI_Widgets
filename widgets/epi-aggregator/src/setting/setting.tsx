@@ -1,0 +1,9 @@
+import { React, AllWidgetSettingProps, DataSourceTypes, Immutable } from 'jimu-core'
+import { DataSourceSelector } from 'jimu-ui/advanced/setting-components'
+import { TextInput, Label, Select, Option } from 'jimu-ui'
+import { IMConfig } from '../config'
+export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
+  const config = props.config; const use = props.useDataSources
+  const update = (key: string, value: any) => props.onSettingChange({ id: props.id, config: config.set(key, value) })
+  return <div className="p-3"><Label>Line-list / source de données</Label><DataSourceSelector widgetId={props.id} types={[DataSourceTypes.FeatureLayer, DataSourceTypes.SceneLayer, DataSourceTypes.MapService]} mustUseDataSource useDataSources={use} onChange={ds => props.onSettingChange({ id: props.id, useDataSources: ds })} /><div className="mt-4"><Label>Champ date par défaut</Label><TextInput value={config.dateField || ''} placeholder="onset_date" onChange={e => update('dateField', e.target.value)} /></div><div className="mt-3"><Label>Langue / Langage</Label><Select value={config.locale || 'fr'} onChange={e => update('locale', e.target.value)}><Option value="fr">Français</Option><Option value="en">English</Option></Select></div><div className="mt-3"><Label>Agrégation par défaut</Label><Select value={config.period || 'epi-week'} onChange={e => update('period', e.target.value)}><Option value="epi-week">Semaine épidémiologique</Option><Option value="month">Mois</Option><Option value="quarter">Trimestre</Option><Option value="year">Année</Option></Select></div></div>
+}
