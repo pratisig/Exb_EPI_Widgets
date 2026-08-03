@@ -1,6 +1,6 @@
 /** Date and period utilities deliberately have no Experience Builder dependency.
  * They are also useful in tests and in future data-source adapters. */
-import { Period, WeekMode } from '../config'
+import { Period, WeekMode, DateConvention } from '../config'
 
 export interface PeriodValue { key: string; label: string; start: Date; end: Date }
 
@@ -8,7 +8,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
 const utc = (y: number, m: number, d: number) => new Date(Date.UTC(y, m, d))
 
 /** Handles ISO strings, US/EU dates, timestamps and Excel serial dates. */
-export function parseEpiDate(value: unknown): Date | null {
+export function parseEpiDate(value: unknown, convention: DateConvention = 'dmy'): Date | null {
   if (value == null || value === '') return null
   if (value instanceof Date && !isNaN(value.getTime())) return new Date(value.getTime())
   if (typeof value === 'number' && isFinite(value)) {
@@ -23,10 +23,11 @@ export function parseEpiDate(value: unknown): Date | null {
   // for the field-team convention, whereas browser parsers usually make it January 2.
   let m = text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})(?:\s+(\d{1,2}):?(\d{2})?)?$/)
   if (m) {
-    // Ambiguous slash dates are interpreted as day/month, the convention used by most field teams.
+    // Field teams commonly use day/month. The explicit setting avoids ambiguity.
     let day = +m[1]; let month = +m[2] - 1
-    // If the second component cannot be a month, accept the US month/day form.
-    if (day <= 12 && +m[2] > 12) { day = +m[2]; month = +m[1] - 1 }
+    if (convention === 'mdy' || (convention === 'auto' && day <= 12 && +m[2] <= 12)) { day = +m[2]; month = +m[1] - 1 }
+    // A component greater than 12 removes the ambiguity whatever the setting.
+    if (+m[2] > 12) { day = +m[2]; month = +m[1] - 1 }
     const d = new Date(Date.UTC(+m[3], month, day, +(m[4] || 0), +(m[5] || 0)))
     return d.getUTCDate() === day && d.getUTCMonth() === month ? d : null
   }
@@ -62,12 +63,12 @@ export function periodFor(date: Date, period: Period, weekMode: WeekMode = 'iso'
 }
 
 export interface AggregateRow extends PeriodValue { count: number; records: any[] }
-export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string): { rows: AggregateRow[], invalid: number } {
-  const outbreak = parseEpiDate(outbreakStart)
+export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy'): { rows: AggregateRow[], invalid: number } {
+  const outbreak = parseEpiDate(outbreakStart, convention)
   const groups = new Map<string, AggregateRow>(); let invalid = 0
   records.forEach(record => {
     const attrs = record?.getData ? record.getData() : (record?.attributes || record)
-    const date = parseEpiDate(attrs?.[dateField])
+    const date = parseEpiDate(attrs?.[dateField], convention)
     if (!date) { invalid++; return }
     const p = periodFor(date, period, weekMode, outbreak || undefined); const existing = groups.get(p.key)
     if (existing) { existing.count++; existing.records.push(record) } else groups.set(p.key, { ...p, count: 1, records: [record] })

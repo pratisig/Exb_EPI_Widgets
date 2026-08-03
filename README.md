@@ -10,6 +10,10 @@ Widget custom pour ArcGIS Experience Builder, conçu pour les line-lists d'épid
 - Comptage par période, signalement des dates illisibles et filtre de la source par période.
 - Timeline Play/Stop : avance automatiquement au pas sélectionné et applique le filtre aux widgets connectés.
 - Interface bilingue français/anglais.
+- Convention configurable pour les dates ambiguës (`jour/mois`, `mois/jour`, automatique).
+- Synthèse de qualité et de surveillance : cas valides, dates ignorées, pic et nombre de périodes.
+- Mode cumulatif pour suivre la charge totale, bouton de réinitialisation du filtre et vitesse de timeline réglable.
+- Manuel de terrain détaillé dans `MANUEL_UTILISATION.md`.
 
 ## Installation
 

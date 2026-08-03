@@ -2,6 +2,7 @@ import { ImmutableObject } from 'jimu-core'
 
 export type Period = 'epi-week' | 'month' | 'quarter' | 'year'
 export type WeekMode = 'iso' | 'outbreak'
+export type DateConvention = 'dmy' | 'mdy' | 'auto'
 
 export interface Config {
   dataSource?: any
@@ -10,6 +11,7 @@ export interface Config {
   weekMode: WeekMode
   outbreakStart?: string
   locale: string
+  dateConvention: DateConvention
   emitField: boolean
 }
 
