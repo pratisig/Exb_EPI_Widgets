@@ -62,7 +62,7 @@ export function periodFor(date: Date, period: Period, weekMode: WeekMode = 'iso'
   const start = weekStart(date); return { key: `${w.year}-W${pad(w.week)}`, label: `${w.year} S${w.week}`, start, end: new Date(start.getTime() + 7 * 86400000) }
 }
 
-export interface AggregateRow extends PeriodValue { count: number; value: number; records: any[] }
+export interface AggregateRow extends PeriodValue { count: number; value: any; records: any[] }
 
 function numericValue(value: unknown): number | null {
   if (typeof value === 'number' && isFinite(value)) return value
@@ -73,22 +73,27 @@ function numericValue(value: unknown): number | null {
   return null
 }
 
-function calculate(records: any[], valueField: string | undefined, statistic: Statistic): number {
+function calculate(records: any[], valueField: string | undefined, statistic: Statistic, valueType: 'number' | 'date' | 'text' = 'number'): any {
   if (statistic === 'count') return records.length
-  const values = records.map(record => { const attrs = record?.getData ? record.getData() : (record?.attributes || record); return valueField ? numericValue(attrs?.[valueField]) : null }).filter((v): v is number => v !== null)
-  if (statistic === 'distinct') return new Set(values).size
+  const raw = records.map(record => { const attrs = record?.getData ? record.getData() : (record?.attributes || record); return valueField ? attrs?.[valueField] : null }).filter(v => v !== null && v !== undefined && v !== '')
+  if (statistic === 'distinct') return new Set(raw.map(v => String(v))).size
+  if (statistic === 'first' || statistic === 'last') return raw.length ? raw[statistic === 'first' ? 0 : raw.length - 1] : ''
+  if (valueType === 'date' && (statistic === 'min' || statistic === 'max')) {
+    const dates = raw.map(v => parseEpiDate(v)).filter((v): v is Date => !!v)
+    if (!dates.length) return ''
+    return new Date((statistic === 'min' ? Math.min : Math.max)(...dates.map(d => d.getTime()))).toISOString()
+  }
+  const values = raw.map(numericValue).filter((v): v is number => v !== null)
   if (!values.length) return 0
   if (statistic === 'sum') return values.reduce((a, b) => a + b, 0)
   if (statistic === 'mean') return values.reduce((a, b) => a + b, 0) / values.length
   if (statistic === 'min') return Math.min(...values)
   if (statistic === 'max') return Math.max(...values)
-  if (statistic === 'first') return values[0]
-  if (statistic === 'last') return values[values.length - 1]
   const sorted = [...values].sort((a, b) => a - b); const middle = Math.floor(sorted.length / 2)
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2
 }
 
-export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy', statistic: Statistic = 'count', valueField?: string): { rows: AggregateRow[], invalid: number } {
+export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy', statistic: Statistic = 'count', valueField?: string, valueType: 'number' | 'date' | 'text' = 'number'): { rows: AggregateRow[], invalid: number } {
   const outbreak = parseEpiDate(outbreakStart, convention); const groups = new Map<string, AggregateRow>(); let invalid = 0
   records.forEach(record => {
     const attrs = record?.getData ? record.getData() : (record?.attributes || record); const date = parseEpiDate(attrs?.[dateField], convention)
@@ -97,6 +102,6 @@ export function aggregate(records: any[], dateField: string, period: Period, wee
     if (existing) { existing.count++; existing.records.push(record) } else groups.set(p.key, { ...p, count: 1, value: 0, records: [record] })
   })
   const rows = Array.from(groups.values()).sort((a, b) => a.start.getTime() - b.start.getTime())
-  rows.forEach(row => { row.value = calculate(row.records, valueField, statistic) })
+  rows.forEach(row => { row.value = calculate(row.records, valueField, statistic, valueType) })
   return { rows, invalid }
 }

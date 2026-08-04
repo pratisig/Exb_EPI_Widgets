@@ -74,11 +74,13 @@ Le widget peut agréger un champ numérique par période. Le choix se fait dans 
 
 - **Compter les enregistrements** : nombre de lignes avec une date valide ; recommandé pour une courbe de cas.
 - **Somme** : total d'un champ numérique, par exemple décès ou doses administrées.
-- **Moyenne** : moyenne arithmétique des valeurs non vides.
-- **Médiane** : valeur centrale, plus robuste que la moyenne face aux valeurs extrêmes.
-- **Minimum / Maximum** : bornes observées dans la période.
-- **Première valeur / Dernière valeur** : première ou dernière valeur dans l'ordre retourné par le service ; utiliser uniquement avec un ordre de requête documenté.
-- **Valeurs distinctes** : nombre de valeurs numériques différentes du champ. Pour compter des individus distincts, utiliser un identifiant numérique ou préparer une agrégation dédiée.
+- **Moyenne** : moyenne arithmétique des valeurs numériques non vides.
+- **Médiane** : valeur centrale numérique, plus robuste que la moyenne face aux valeurs extrêmes.
+- **Minimum / Maximum** : minimum ou maximum d'un champ numérique ; ils acceptent aussi un champ Date et retournent alors la date la plus ancienne ou la plus récente.
+- **Première valeur / Dernière valeur** : première ou dernière valeur d'un champ texte dans l'ordre retourné par le service ; utiliser uniquement avec un ordre de requête documenté.
+- **Valeurs distinctes** : nombre de valeurs différentes, numériques ou textuelles, du champ choisi.
+
+Le cumul est disponible pour Count, Sum, Mean et les statistiques numériques. Il est désactivé pour les résultats textuels et les dates.
 
 Les statistiques autres que le comptage ignorent les valeurs non numériques ou vides. Le filtre temporel continue à utiliser le champ date et non le champ de mesure.
 

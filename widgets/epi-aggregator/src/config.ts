@@ -8,6 +8,7 @@ export type Statistic = 'count' | 'sum' | 'mean' | 'median' | 'min' | 'max' | 'f
 export interface SourceConfig {
   dateField?: string
   valueField?: string
+  valueType?: 'number' | 'date' | 'text'
   statistic: Statistic
   period: Period
   weekMode: WeekMode
