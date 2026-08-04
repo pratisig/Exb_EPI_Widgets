@@ -194,12 +194,15 @@ La timeline et les valeurs du widget restent disponibles, mais la carte, la tabl
 
 Chaque source possède sa propre timeline.
 
+- La timeline est horizontale et affiche la période active au-dessus du curseur.
+- Le curseur permet de passer directement d'une période à l'autre.
+- Les boutons première, précédente, suivante et dernière période facilitent la navigation.
 - **Lire** avance d'une période à l'autre.
 - **Arrêter** suspend la lecture.
 - **Lent**, **Normal** et **Rapide** changent la vitesse.
 - **Cumulé** affiche la valeur cumulée lorsque la statistique est numérique.
 - La période active est toujours visible en haut de la source.
-- Le bouton **Afficher les périodes / Masquer les périodes** réduit la liste.
+- Le bouton **Afficher les périodes / Masquer les périodes** réduit la liste des boutons, sans désactiver le curseur.
 
 Lorsque la source contient plus de périodes, la liste se replie automatiquement pour éviter un widget trop long. La timeline continue de fonctionner même lorsque la liste est repliée.
 
