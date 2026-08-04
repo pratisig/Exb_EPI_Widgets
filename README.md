@@ -4,6 +4,7 @@ Widget custom pour ArcGIS Experience Builder, conçu pour les line-lists d'épid
 
 ## Fonctions
 
+- Plusieurs sources line-list dans un même widget, avec champ date, mesure, statistique et période configurables séparément pour chaque source.
 - Lecture des dates ISO, timestamps ArcGIS, dates Excel, `DD/MM/YYYY`, `MM/DD/YYYY`, `YYYY-MM-DD` et formats texte JavaScript.
 - Agrégation par semaine épidémiologique ISO (S1–S53), mois, trimestre et année.
 - Statistiques par période : comptage, somme, moyenne, médiane, minimum, maximum, première/dernière valeur et valeurs distinctes sur un champ numérique.

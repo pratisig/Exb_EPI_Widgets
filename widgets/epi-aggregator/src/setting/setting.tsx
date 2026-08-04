@@ -9,9 +9,9 @@ const statistics: Array<[Statistic, string]> = [['count', 'Compter les enregistr
 
 export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
   const config: any = props.config || Immutable({ locale: 'fr', sources: {} })
-  const selectedSources: any[] = props.useDataSources ? (props.useDataSources.toArray ? props.useDataSources.toArray() : props.useDataSources) : []
+  const selectedSources: any[] = props.useDataSources ? (props.useDataSources.toArray ? props.useDataSources.toArray() : props.useDataSources).map((item: any) => item?.toJS ? item.toJS() : item) : []
   const update = (key: string, value: any) => props.onSettingChange({ id: props.id, config: config.set(key, value) })
-  const getSourceConfig = (id: string): SourceConfig => config.getIn?.(['sources', id]) || defaultSource
+  const getSourceConfig = (id: string): SourceConfig => { const value = config.getIn?.(['sources', id]); return value?.toJS ? value.toJS() : (value || defaultSource) }
   const updateSource = (id: string, key: string, value: any) => props.onSettingChange({ id: props.id, config: config.setIn(['sources', id, key], value) })
   const updateField = (source: any, key: 'dateField' | 'valueField', fields: any[]) => {
     const field = fields?.[0]?.jimuName || ''

@@ -38,9 +38,11 @@ Avant publication :
 ## 3. Configuration
 
 1. Ajouter **Epi Aggregator** à l'expérience.
-2. Sélectionner la Feature Layer ou table de la line-list.
-3. Renseigner le nom exact du champ date.
-4. Choisir la convention des dates ambiguës :
+2. Dans le panneau Contenu, sélectionner une ou plusieurs Feature Layers/tables line-list.
+3. Pour chaque source, choisir le champ date dans la liste des champs de la source.
+4. Pour chaque source, choisir la statistique et, si nécessaire, le champ numérique dans la liste des champs.
+5. Choisir la période, le mode de semaine et la convention de date propres à chaque source.
+6. Choisir la convention des dates ambiguës :
    - **Jour / mois / année** : recommandée pour les équipes terrain francophones ;
    - **Mois / jour / année** : pour les exports provenant des États-Unis ;
    - **Automatique** : à utiliser seulement si les dates ambiguës ont été contrôlées.
