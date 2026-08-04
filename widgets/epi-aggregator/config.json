@@ -11,6 +11,9 @@
   "denominatorField": "",
   "rateFactor": 100,
   "filterMode": "cumulative",
+  "mapField": "",
+  "mapStyle": "auto",
+  "scaleMode": "dynamic",
   "outbreakStart": "",
   "locale": "fr",
   "accentColor": "#1261a0"

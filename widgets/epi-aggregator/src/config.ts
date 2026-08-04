@@ -20,6 +20,9 @@ export interface SourceConfig {
   dateConvention: DateConvention
   label?: string
   filterMode: 'single' | 'cumulative' | 'none'
+  mapField?: string
+  mapStyle?: 'auto' | 'circle' | 'graduated'
+  scaleMode?: 'dynamic' | 'fixed'
 }
 
 export interface Config {

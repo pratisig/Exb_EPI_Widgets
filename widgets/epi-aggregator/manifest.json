@@ -8,7 +8,7 @@
   "description": "Normalise epidemic dates, aggregate line lists and publish a time filter to connected Experience Builder data sources.",
   "copyright": "",
   "license": "Apache-2.0",
-  "properties": { "hasConfigInSettingPage": true },
+  "properties": { "hasConfigInSettingPage": true, "canCreateMapView": true },
   "translatedLocales": ["en", "fr"],
   "defaultSize": { "width": 380, "height": 520 },
   "dependency": ["jimu-arcgis"]

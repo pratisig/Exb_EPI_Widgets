@@ -1,10 +1,11 @@
 import { React, AllWidgetSettingProps, AllDataSourceTypes, DataSourceManager, Immutable, UseDataSource } from 'jimu-core'
 import { DataSourceSelector } from 'jimu-ui/advanced/data-source-selector'
+import { MapWidgetSelector } from 'jimu-ui/advanced/setting-components'
 import { TextInput, Label, Select, Option } from 'jimu-ui'
 import { IMConfig, SourceConfig, Statistic } from '../config'
 import './style.css'
 
-const defaultSource: SourceConfig = { dateField: '', valueField: '', valueType: 'number', metricMode: 'aggregate', numeratorField: '', denominatorField: '', rateFactor: 100, statistic: 'count', period: 'epi-week', weekMode: 'iso', dateConvention: 'dmy', outbreakStart: '', filterMode: 'cumulative' }
+const defaultSource: SourceConfig = { dateField: '', valueField: '', valueType: 'number', metricMode: 'aggregate', numeratorField: '', denominatorField: '', rateFactor: 100, statistic: 'count', period: 'epi-week', weekMode: 'iso', dateConvention: 'dmy', outbreakStart: '', filterMode: 'cumulative', mapField: '', mapStyle: 'auto', scaleMode: 'dynamic' }
 const statistics: Array<[Statistic, string]> = [['count', 'Compter les enregistrements'], ['sum', 'Somme'], ['mean', 'Moyenne'], ['median', 'Médiane'], ['min', 'Minimum'], ['max', 'Maximum'], ['first', 'Première valeur'], ['last', 'Dernière valeur'], ['distinct', 'Valeurs distinctes']]
 
 export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
@@ -34,6 +35,7 @@ export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
   const onSourcesChange = (sources: UseDataSource[]) => props.onSettingChange({ id: props.id, useDataSources: sources })
   return <div className="epi-setting p-3">
     <Label>Couleur principale</Label><input className="epi-color" type="color" value={config.get?.('accentColor') || '#1261a0'} onChange={e => update('accentColor', e.target.value)} />
+    <Label>Carte à piloter (optionnel)</Label><MapWidgetSelector useMapWidgetIds={props.useMapWidgetIds} onSelect={ids => props.onSettingChange({ id: props.id, useMapWidgetIds: ids })} />
     <Label>Sources line-list (plusieurs possibles)</Label>
     <DataSourceSelector types={Immutable([AllDataSourceTypes.FeatureLayer])} isMultiple={true} mustUseDataSource={true} useDataSources={props.useDataSources} useDataSourcesEnabled={props.useDataSourcesEnabled} onToggleUseDataEnabled={enabled => props.onSettingChange({ id: props.id, useDataSourcesEnabled: enabled })} onChange={onSourcesChange} widgetId={props.id} />
     {selectedSources.length === 0 && <div className="epi-setting-help">Ajoutez une ou plusieurs couches ou tables Feature Layer pour afficher leur configuration.</div>}
@@ -50,6 +52,9 @@ export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
         {c.period === 'epi-week' && c.weekMode === 'outbreak' && <><Label>Début de l'épidémie</Label><TextInput type="date" value={c.outbreakStart || ''} onChange={e => updateSource(id, 'outbreakStart', e.target.value)} /></>}
         <Label>Convention des dates</Label><Select value={c.dateConvention || 'dmy'} onChange={e => updateSource(id, 'dateConvention', e.target.value)}><Option value="dmy">Jour / mois / année</Option><Option value="mdy">Mois / jour / année</Option><Option value="auto">Automatique</Option></Select>
         <Label>Mode d'affichage sur la page</Label><Select value={c.filterMode || 'cumulative'} onChange={e => updateSource(id, 'filterMode', e.target.value)}><Option value="cumulative">Progressif / cumulatif jusqu'à la période</Option><Option value="single">Une seule période</Option><Option value="none">Toutes les données (sans filtre)</Option></Select>
+        <Label>Champ cartographique (optionnel)</Label><Select value={c.mapField || ''} onChange={e => updateSource(id, 'mapField', e.target.value)}><Option value="">Utiliser la mesure sélectionnée</Option>{numericFields.map(field => <Option key={field.name} value={field.name}>{field.alias || field.name}</Option>)}</Select>
+        <Label>Rendu cartographique</Label><Select value={c.mapStyle || 'auto'} onChange={e => updateSource(id, 'mapStyle', e.target.value)}><Option value="auto">Automatique</Option><Option value="circle">Cercles proportionnels</Option><Option value="graduated">Couleurs graduées</Option></Select>
+        <Label>Échelle des symboles</Label><Select value={c.scaleMode || 'dynamic'} onChange={e => updateSource(id, 'scaleMode', e.target.value)}><Option value="dynamic">Dynamique selon la période</Option><Option value="fixed">Fixe sur toute l'analyse</Option></Select>
       </div>
     })}
   </div>

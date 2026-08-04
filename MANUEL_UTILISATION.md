@@ -277,7 +277,21 @@ En mode sans filtre, la requête revient à l'ensemble des données.
 
 Le comportement exact dépend de la version Experience Builder et de la manière dont les composants partagent la source. Tester l'expérience avec une carte, un tableau et un indicateur avant publication.
 
-## 12. Couleur
+## 12. Cartographie dynamique
+
+Le panneau Contenu permet maintenant de choisir une carte et, pour chaque source, un champ cartographique optionnel.
+
+- **Automatique** : cercle proportionnel pour les points, couleurs graduées pour les polygones ;
+- **Cercles proportionnels** : taille calculée par variable visuelle sur le champ choisi ;
+- **Couleurs graduées** : rampe bleu clair à bleu foncé ;
+- **Échelle dynamique** : bornes recalculées selon la période active ;
+- **Échelle fixe** : bornes conservées sur la série chargée.
+
+Le champ cartographique doit exister dans la couche affichée sur la carte et être numérique. Le widget identifie la couche par la source de données sélectionnée et actualise son renderer lorsque la période change. Une couche peut donc rester filtrée par la timeline tout en gardant une symbologie cohérente.
+
+Pour des taux, utiliser une couche déjà agrégée par zone avec un champ de taux ou configurer le mode numérateur/dénominateur du widget. Les définitions de taux et les dénominateurs doivent être documentés par l'équipe de surveillance.
+
+## 13. Couleur
 
 Le paramètre **Couleur principale** personnalise :
 
