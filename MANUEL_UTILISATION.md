@@ -131,6 +131,35 @@ Ces statistiques sont réservées aux champs texte, par exemple `status`, `distr
 
 Compte les valeurs différentes d'un champ texte ou numérique. Pour compter des patients uniques, utiliser un identifiant préparé pour l'analyse et contrôler les doublons de visites.
 
+## 7. Calcul des taux
+
+Le mode **Taux (numérateur / dénominateur)** permet de calculer un taux par période avec trois paramètres :
+
+```text
+Numérateur
+Dénominateur
+Facteur du taux
+```
+
+La formule est :
+
+```text
+somme(numérateur) / somme(dénominateur) × facteur
+```
+
+Exemples :
+
+```text
+Taux d'attaque       = cas / population à risque × 100
+Létalité             = décès / cas × 100
+Incidence            = nouveaux cas / population × 100 000
+Mortalité            = décès / population × 100 000
+```
+
+Le widget protège les divisions par zéro en retournant zéro lorsque le dénominateur est vide ou égal à zéro. Le choix de la définition épidémiologique et du dénominateur reste sous la responsabilité de l'équipe de surveillance.
+
+## 8. Affichage et filtre sur la page
+
 ## 7. Périodes disponibles
 
 ### Semaine ISO

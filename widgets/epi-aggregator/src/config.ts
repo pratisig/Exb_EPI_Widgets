@@ -9,6 +9,10 @@ export interface SourceConfig {
   dateField?: string
   valueField?: string
   valueType?: 'number' | 'date' | 'text'
+  metricMode?: 'aggregate' | 'rate'
+  numeratorField?: string
+  denominatorField?: string
+  rateFactor?: number
   statistic: Statistic
   period: Period
   weekMode: WeekMode
