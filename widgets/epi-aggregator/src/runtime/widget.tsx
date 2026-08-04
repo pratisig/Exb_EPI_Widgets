@@ -68,7 +68,7 @@ function EpiView({ ds, props, fr, field, valueField, statistic, period, weekMode
 }
 
 export default function Widget(props: AllWidgetProps<IMConfig>) {
-  const cfg = props.config
+  const cfg: any = props.config || { locale: 'fr', period: 'epi-week', weekMode: 'iso', dateConvention: 'dmy', statistic: 'count', dateField: '', valueField: '', outbreakStart: '' }
   const fr = (cfg.locale || 'fr').toLowerCase().startsWith('fr')
   const [field, setField] = React.useState(cfg.dateField || '')
   const [period, setPeriod] = React.useState<Period>(cfg.period || 'epi-week')
