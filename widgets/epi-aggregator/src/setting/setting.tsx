@@ -8,12 +8,12 @@ const defaultConfig = { locale: 'fr', period: 'epi-week', weekMode: 'iso', dateC
 
 export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
   const config: any = props.config || Immutable(defaultConfig)
-  const use = props.useDataSources || Immutable([])
+  const use = props.useDataSources
   const update = (key: string, value: any) => props.onSettingChange({ id: props.id, config: config.set(key, value) })
   const onSourceChange = (useDataSources: any) => props.onSettingChange({ id: props.id, useDataSources })
   return <div className="p-3">
     <Label>Line-list / source de données</Label>
-    <DataSourceSelector widgetId={props.id} types={Immutable([DataSourceTypes.FeatureLayer, DataSourceTypes.SceneLayer])} mustUseDataSource={true} useDataSources={use} onChange={onSourceChange} />
+    <DataSourceSelector widgetId={props.id} types={Immutable([DataSourceTypes.FeatureLayer])} mustUseDataSource={true} useDataSources={use} onChange={onSourceChange} />
     <div className="mt-4"><Label>Champ date par défaut</Label><TextInput value={config.dateField || ''} placeholder="onset_date" onChange={e => update('dateField', e.target.value)} /></div>
     <div className="mt-3"><Label>Statistique par défaut</Label><Select value={config.statistic || 'count'} onChange={e => update('statistic', e.target.value)}><Option value="count">Compter les enregistrements</Option><Option value="sum">Somme</Option><Option value="mean">Moyenne</Option><Option value="median">Médiane</Option><Option value="min">Minimum</Option><Option value="max">Maximum</Option><Option value="first">Première valeur</Option><Option value="last">Dernière valeur</Option><Option value="distinct">Valeurs distinctes</Option></Select></div>
     <div className="mt-3"><Label>Champ numérique par défaut</Label><TextInput value={config.valueField || ''} placeholder="deaths, population" onChange={e => update('valueField', e.target.value)} /></div>
