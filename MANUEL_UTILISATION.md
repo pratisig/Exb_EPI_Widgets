@@ -96,9 +96,15 @@ Une période affiche son nombre de cas. En activant **Cumulé**, la valeur affic
 
 Les enregistrements sans date reconnue sont affichés séparément. Ils ne sont pas supprimés de la source : ils sont seulement exclus de l'agrégation.
 
-## 6. Filtrer une expérience
+## 6. Modes d'affichage et filtre
 
-Cliquer sur une période applique un filtre temporel à la source utilisée par le widget. Les composants qui partagent cette source peuvent alors être actualisés :
+Chaque source propose trois modes :
+
+- **Progressif / cumulatif** : la sélection de la période N affiche les données depuis la première période jusqu'à N ;
+- **Une seule période** : seule la fenêtre de la période sélectionnée est affichée ;
+- **Toutes les données (sans filtre)** : les périodes restent visibles dans le widget mais la carte et les autres composants gardent l'ensemble des données.
+
+Cliquer sur une période applique le mode choisi à la source utilisée par le widget. Les composants qui partagent cette source peuvent alors être actualisés :
 
 - carte ;
 - graphique ;

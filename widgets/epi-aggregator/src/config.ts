@@ -15,6 +15,7 @@ export interface SourceConfig {
   outbreakStart?: string
   dateConvention: DateConvention
   label?: string
+  filterMode: 'single' | 'cumulative' | 'none'
 }
 
 export interface Config {
