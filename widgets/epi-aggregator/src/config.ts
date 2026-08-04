@@ -5,17 +5,27 @@ export type WeekMode = 'iso' | 'outbreak'
 export type DateConvention = 'dmy' | 'mdy' | 'auto'
 export type Statistic = 'count' | 'sum' | 'mean' | 'median' | 'min' | 'max' | 'first' | 'last' | 'distinct'
 
-export interface Config {
-  dataSource?: any
+export interface SourceConfig {
   dateField?: string
   valueField?: string
   statistic: Statistic
   period: Period
   weekMode: WeekMode
   outbreakStart?: string
-  locale: string
   dateConvention: DateConvention
-  emitField: boolean
+  label?: string
+}
+
+export interface Config {
+  period: Period
+  weekMode: WeekMode
+  dateConvention: DateConvention
+  statistic: Statistic
+  dateField?: string
+  valueField?: string
+  outbreakStart?: string
+  locale: string
+  sources?: { [dataSourceId: string]: SourceConfig }
 }
 
 export type IMConfig = ImmutableObject<Config>

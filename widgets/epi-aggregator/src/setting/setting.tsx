@@ -1,24 +1,41 @@
-import { React, AllWidgetSettingProps, AllDataSourceTypes, Immutable } from 'jimu-core'
-import { DataSourceSelector } from 'jimu-ui/advanced/data-source-selector'
+import { React, AllWidgetSettingProps, AllDataSourceTypes, Immutable, UseDataSource } from 'jimu-core'
+import { DataSourceSelector, FieldSelector } from 'jimu-ui/advanced/data-source-selector'
 import { TextInput, Label, Select, Option } from 'jimu-ui'
-import { IMConfig } from '../config'
+import { IMConfig, SourceConfig, Statistic } from '../config'
 import './style.css'
 
-const defaultConfig = { locale: 'fr', period: 'epi-week', weekMode: 'iso', dateConvention: 'dmy', statistic: 'count', dateField: '', valueField: '', outbreakStart: '' }
+const defaultSource: SourceConfig = { dateField: '', valueField: '', statistic: 'count', period: 'epi-week', weekMode: 'iso', dateConvention: 'dmy', outbreakStart: '' }
+const statistics: Array<[Statistic, string]> = [['count', 'Compter les enregistrements'], ['sum', 'Somme'], ['mean', 'Moyenne'], ['median', 'Médiane'], ['min', 'Minimum'], ['max', 'Maximum'], ['first', 'Première valeur'], ['last', 'Dernière valeur'], ['distinct', 'Valeurs distinctes']]
 
 export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
-  const config: any = props.config || Immutable(defaultConfig)
-  const use = props.useDataSources
+  const config: any = props.config || Immutable({ locale: 'fr', sources: {} })
+  const selectedSources: any[] = props.useDataSources ? (props.useDataSources.toArray ? props.useDataSources.toArray() : props.useDataSources) : []
   const update = (key: string, value: any) => props.onSettingChange({ id: props.id, config: config.set(key, value) })
-  const onSourceChange = (useDataSources: any) => props.onSettingChange({ id: props.id, useDataSources })
-  return <div className="p-3">
-    <Label>Line-list / source de données</Label>
-    <DataSourceSelector widgetId={props.id} types={Immutable([AllDataSourceTypes.FeatureLayer])} mustUseDataSource={true} useDataSources={use} useDataSourcesEnabled={props.useDataSourcesEnabled} onToggleUseDataEnabled={(enabled: boolean) => props.onSettingChange({ id: props.id, useDataSourcesEnabled: enabled })} onChange={onSourceChange} />
-    <div className="mt-4"><Label>Champ date par défaut</Label><TextInput value={config.dateField || ''} placeholder="onset_date" onChange={e => update('dateField', e.target.value)} /></div>
-    <div className="mt-3"><Label>Statistique par défaut</Label><Select value={config.statistic || 'count'} onChange={e => update('statistic', e.target.value)}><Option value="count">Compter les enregistrements</Option><Option value="sum">Somme</Option><Option value="mean">Moyenne</Option><Option value="median">Médiane</Option><Option value="min">Minimum</Option><Option value="max">Maximum</Option><Option value="first">Première valeur</Option><Option value="last">Dernière valeur</Option><Option value="distinct">Valeurs distinctes</Option></Select></div>
-    <div className="mt-3"><Label>Champ numérique par défaut</Label><TextInput value={config.valueField || ''} placeholder="deaths, population" onChange={e => update('valueField', e.target.value)} /></div>
-    <div className="mt-3"><Label>Convention des dates ambiguës</Label><Select value={config.dateConvention || 'dmy'} onChange={e => update('dateConvention', e.target.value)}><Option value="dmy">Jour / mois / année</Option><Option value="mdy">Mois / jour / année</Option><Option value="auto">Automatique</Option></Select></div>
-    <div className="mt-3"><Label>Langue / Langage</Label><Select value={config.locale || 'fr'} onChange={e => update('locale', e.target.value)}><Option value="fr">Français</Option><Option value="en">English</Option></Select></div>
-    <div className="mt-3"><Label>Agrégation par défaut</Label><Select value={config.period || 'epi-week'} onChange={e => update('period', e.target.value)}><Option value="epi-week">Semaine épidémiologique</Option><Option value="month">Mois</Option><Option value="quarter">Trimestre</Option><Option value="year">Année</Option></Select></div>
+  const getSourceConfig = (id: string): SourceConfig => config.getIn?.(['sources', id]) || defaultSource
+  const updateSource = (id: string, key: string, value: any) => props.onSettingChange({ id: props.id, config: config.setIn(['sources', id, key], value) })
+  const updateField = (source: any, key: 'dateField' | 'valueField', fields: any[]) => {
+    const field = fields?.[0]?.jimuName || ''
+    const oldFields = source.fields || []
+    const sourceFields = Array.from(new Set([...(oldFields || []), field].filter(Boolean)))
+    const next = selectedSources.map(item => item.dataSourceId === source.dataSourceId ? { ...item, fields: sourceFields } : item)
+    props.onSettingChange({ id: props.id, config: config.setIn(['sources', source.dataSourceId, key], field), useDataSources: next })
+  }
+  const onSourcesChange = (sources: UseDataSource[]) => props.onSettingChange({ id: props.id, useDataSources: sources })
+  return <div className="epi-setting p-3">
+    <Label>Sources line-list (plusieurs possibles)</Label>
+    <DataSourceSelector types={Immutable([AllDataSourceTypes.FeatureLayer])} isMultiple={true} mustUseDataSource={true} useDataSources={props.useDataSources} useDataSourcesEnabled={props.useDataSourcesEnabled} onToggleUseDataEnabled={enabled => props.onSettingChange({ id: props.id, useDataSourcesEnabled: enabled })} onChange={onSourcesChange} widgetId={props.id} />
+    {selectedSources.length === 0 && <div className="epi-setting-help">Ajoutez une ou plusieurs couches ou tables Feature Layer pour afficher leur configuration.</div>}
+    {selectedSources.map((source, index) => {
+      const id = source.dataSourceId; const c = getSourceConfig(id)
+      return <div className="epi-source-setting" key={id}><h4>Source {index + 1}</h4><TextInput value={c.label || ''} placeholder="Nom court de la source (optionnel)" onChange={e => updateSource(id, 'label', e.target.value)} />
+        <Label>Champ date</Label><FieldSelector useDataSources={Immutable([source])} selectedFields={Immutable(c.dateField ? [c.dateField] : [])} onChange={fields => updateField(source, 'dateField', fields)} isMultiple={false} />
+        <Label>Statistique</Label><Select value={c.statistic || 'count'} onChange={e => updateSource(id, 'statistic', e.target.value)}>{statistics.map(s => <Option value={s[0]} key={s[0]}>{s[1]}</Option>)}</Select>
+        {c.statistic !== 'count' && <><Label>Champ numérique / mesure</Label><FieldSelector useDataSources={Immutable([source])} selectedFields={Immutable(c.valueField ? [c.valueField] : [])} onChange={fields => updateField(source, 'valueField', fields)} isMultiple={false} /></>}
+        <Label>Agrégation</Label><Select value={c.period || 'epi-week'} onChange={e => updateSource(id, 'period', e.target.value)}><Option value="epi-week">Semaine épidémiologique</Option><Option value="month">Mois</Option><Option value="quarter">Trimestre</Option><Option value="year">Année</Option></Select>
+        {c.period === 'epi-week' && <><Label>Base des semaines</Label><Select value={c.weekMode || 'iso'} onChange={e => updateSource(id, 'weekMode', e.target.value)}><Option value="iso">Semaine ISO</Option><Option value="outbreak">Depuis le début de l'épidémie</Option></Select></>}
+        {c.period === 'epi-week' && c.weekMode === 'outbreak' && <><Label>Début de l'épidémie</Label><TextInput type="date" value={c.outbreakStart || ''} onChange={e => updateSource(id, 'outbreakStart', e.target.value)} /></>}
+        <Label>Convention des dates</Label><Select value={c.dateConvention || 'dmy'} onChange={e => updateSource(id, 'dateConvention', e.target.value)}><Option value="dmy">Jour / mois / année</Option><Option value="mdy">Mois / jour / année</Option><Option value="auto">Automatique</Option></Select>
+      </div>
+    })}
   </div>
 }
