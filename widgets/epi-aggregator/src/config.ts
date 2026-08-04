@@ -27,6 +27,7 @@ export interface Config {
   valueField?: string
   outbreakStart?: string
   locale: string
+  accentColor?: string
   sources?: { [dataSourceId: string]: SourceConfig }
 }
 

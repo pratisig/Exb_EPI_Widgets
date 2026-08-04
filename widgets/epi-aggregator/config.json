@@ -8,5 +8,6 @@
   "valueType": "number",
   "filterMode": "cumulative",
   "outbreakStart": "",
-  "locale": "fr"
+  "locale": "fr",
+  "accentColor": "#1261a0"
 }

@@ -33,6 +33,7 @@ export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
   }
   const onSourcesChange = (sources: UseDataSource[]) => props.onSettingChange({ id: props.id, useDataSources: sources })
   return <div className="epi-setting p-3">
+    <Label>Couleur principale</Label><input className="epi-color" type="color" value={config.get?.('accentColor') || '#1261a0'} onChange={e => update('accentColor', e.target.value)} />
     <Label>Sources line-list (plusieurs possibles)</Label>
     <DataSourceSelector types={Immutable([AllDataSourceTypes.FeatureLayer])} isMultiple={true} mustUseDataSource={true} useDataSources={props.useDataSources} useDataSourcesEnabled={props.useDataSourcesEnabled} onToggleUseDataEnabled={enabled => props.onSettingChange({ id: props.id, useDataSourcesEnabled: enabled })} onChange={onSourcesChange} widgetId={props.id} />
     {selectedSources.length === 0 && <div className="epi-setting-help">Ajoutez une ou plusieurs couches ou tables Feature Layer pour afficher leur configuration.</div>}
