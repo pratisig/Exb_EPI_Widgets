@@ -14,7 +14,9 @@ Widget custom pour ArcGIS Experience Builder, conçu pour les line-lists d'épid
 - Interface bilingue français/anglais.
 - Convention configurable pour les dates ambiguës (`jour/mois`, `mois/jour`, automatique).
 - Synthèse de qualité et de surveillance : cas valides, dates ignorées, pic et nombre de périodes.
-- Mode cumulatif pour suivre la charge totale, bouton de réinitialisation du filtre et vitesse de timeline réglable.
+- Mode cumulatif pour suivre la charge totale, bouton de réinitialisation du filtre, vitesse de timeline réglable et liste de périodes repliable.
+- Période active, pic avec son label et total d'enregistrements affichés pour chaque source.
+- Manuel utilisateur complet dans `MANUEL_UTILISATION.md`.
 - Manuel de terrain détaillé dans `MANUEL_UTILISATION.md`.
 
 ## Installation

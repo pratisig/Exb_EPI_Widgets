@@ -1,165 +1,283 @@
-# Manuel de terrain — Epi Aggregator
+# Epi Aggregator — Manuel utilisateur GIS et surveillance
 
-## 1. Objectif
+## 1. Présentation
 
-Epi Aggregator est un widget Experience Builder destiné aux équipes GIS, surveillance et coordination. Il transforme une line-list en série temporelle exploitable sans imposer de modifier les données sources.
+**Epi Aggregator** est un widget personnalisé pour ArcGIS Experience Builder Developer Edition. Il transforme une ou plusieurs line-lists en séries temporelles et permet de piloter les cartes, graphiques, listes, tableaux et indicateurs d'une expérience.
 
-Il répond notamment à ces questions :
+Le widget ne modifie pas la table source. Il lit les enregistrements, normalise les dates pour l'agrégation, calcule une statistique par période et applique, sur demande, une fenêtre temporelle à la source.
 
-- Combien de cas ont été notifiés par semaine, mois, trimestre ou année ?
-- Quel est le pic de la période analysée ?
-- Où se situe la période active sur une carte ou un graphique ?
-- Combien d'enregistrements contiennent une date illisible ?
-- Quelle est la progression cumulée au cours de l'épidémie ?
+## 2. Ce que le widget permet de faire
 
-## 2. Avant de commencer
+- choisir plusieurs Feature Layers ou tables line-list ;
+- configurer chaque source indépendamment ;
+- détecter les champs Date et numériques depuis le schéma ArcGIS ;
+- agréger par semaine ISO, semaine relative à l'épidémie, mois, trimestre ou année ;
+- compter, sommer, calculer une moyenne ou une médiane ;
+- calculer minimum et maximum sur des nombres ou des dates ;
+- récupérer la première ou la dernière valeur d'un champ texte ;
+- calculer le nombre de valeurs distinctes ;
+- afficher la période active en haut de chaque source ;
+- afficher le nombre total d'enregistrements, le pic et l'étiquette de la période du pic ;
+- lire une timeline avec trois vitesses ;
+- choisir entre filtre unique, filtre progressif ou absence de filtre ;
+- réduire la liste des périodes pour conserver un widget compact ;
+- personnaliser la couleur principale du widget.
 
-### Données recommandées
+## 3. Préparer les données
 
-La table ou couche devrait avoir :
+### Champs recommandés
+
+Une line-list de surveillance devrait idéalement contenir :
 
 - un identifiant unique (`case_id`) ;
-- un champ date de référence documenté (`onset_date`, `report_date`, `specimen_date`, etc.) ;
-- un champ de statut (`confirmed`, `probable`, `suspected`, `discarded`) ;
+- un vrai champ Date de référence (`onset_date`, `report_date`, `specimen_date`) ;
+- un statut de cas (`confirmed`, `probable`, `suspected`, `discarded`) ;
 - une localisation ou un code géographique ;
-- idéalement un vrai champ ArcGIS de type Date.
+- les mesures utiles (`deaths`, `age`, `population`, `dose_count`).
 
-Ne mélangez pas les dates de début des symptômes, de notification et de prélèvement sans l'indiquer à l'utilisateur : elles répondent à des questions épidémiologiques différentes.
+### Champ Date
 
-### Contrôle préalable
+Le champ choisi dans le widget doit être publié comme champ ArcGIS de type Date :
+
+```text
+esriFieldTypeDate
+```
+
+Les colonnes texte qui contiennent des dates ne sont volontairement pas proposées dans la liste automatique des champs Date. Pour une line-list hétérogène, conserver le champ original puis créer un champ Date normalisé dans ArcGIS est la solution recommandée.
+
+Les dates locales saisies dans le widget restent prises en charge dans les formats ISO, timestamps ArcGIS, dates Excel et formats jour/mois ou mois/jour.
+
+### Contrôles avant analyse
 
 Avant publication :
 
-1. vérifier le fuseau horaire et la règle d'inclusion des cas ;
-2. rechercher les dates futures, les dates avant le début de la surveillance et les doublons ;
-3. conserver le champ original et, si possible, créer un champ date normalisé ;
-4. documenter si la date est connue au jour, à la semaine ou seulement au mois.
+1. rechercher les dates futures ou antérieures au début de la surveillance ;
+2. documenter la date utilisée : début des symptômes, notification, prélèvement ou validation ;
+3. rechercher les doublons et notifications répétées ;
+4. contrôler les valeurs nulles et les valeurs non numériques ;
+5. vérifier le fuseau horaire du service ;
+6. conserver une date d'extraction dans l'expérience.
 
-## 3. Configuration
+## 4. Ajouter et configurer le widget
 
 1. Ajouter **Epi Aggregator** à l'expérience.
-2. Dans le panneau Contenu, sélectionner une ou plusieurs Feature Layers/tables line-list.
-3. Pour chaque source, choisir le champ date dans la liste des champs de la source.
-4. Pour chaque source, choisir la statistique et, si nécessaire, le champ numérique dans la liste des champs.
-5. Choisir la période, le mode de semaine et la convention de date propres à chaque source.
-6. Choisir la convention des dates ambiguës :
-   - **Jour / mois / année** : recommandée pour les équipes terrain francophones ;
-   - **Mois / jour / année** : pour les exports provenant des États-Unis ;
-   - **Automatique** : à utiliser seulement si les dates ambiguës ont été contrôlées.
-5. Enregistrer l'expérience.
+2. Ouvrir le panneau **Contenu**.
+3. Sélectionner une ou plusieurs sources line-list.
+4. Une section de configuration est créée pour chaque source.
+5. Pour chaque source, sélectionner le champ Date dans **Champ date détecté**.
+6. Choisir la statistique.
+7. Si nécessaire, choisir le champ de mesure dans la liste filtrée.
+8. Choisir la période et le mode de semaine.
+9. Choisir le mode d'affichage sur la page.
+10. Enregistrer l'expérience.
 
-Le champ peut aussi être saisi directement dans le widget lorsque l'interface est affichée aux utilisateurs.
+## 5. Configuration de plusieurs sources
 
-## 4. Modes d'agrégation
+Chaque source possède sa propre configuration et son propre résultat.
 
-### Semaine calendaire ISO
+Exemple :
 
-Utiliser ce mode pour comparer plusieurs années ou suivre la surveillance selon une norme commune. Une semaine commence le lundi et certaines années comportent une semaine 53.
+```text
+Source Choléra
+  Date       : onset_date
+  Statistique: Count
+  Période    : Semaine ISO
+  Filtre     : Progressif
 
-Exemple : `2024 S01`, `2024 S02`.
+Source Décès
+  Date       : report_date
+  Statistique: Sum
+  Mesure     : deaths
+  Période    : Mois
+  Filtre     : Une seule période
+```
+
+Les indicateurs, périodes et timelines restent séparés. Le total de la source Choléra ne se mélange pas avec le total de la source Décès.
+
+## 6. Choisir une statistique
+
+### Count
+
+Compte les enregistrements dont la date est valide. Aucun champ de mesure n'est nécessaire.
+
+L'indicateur bleu est libellé **Nombre total d'enregistrements**. Il correspond à la somme des enregistrements valides de la source, et non uniquement à la période active.
+
+### Sum
+
+Disponible uniquement pour les champs numériques. Exemple : somme des décès ou des doses administrées.
+
+### Mean
+
+Moyenne arithmétique d'un champ numérique. Les valeurs vides et non numériques sont ignorées.
+
+### Median
+
+Médiane d'un champ numérique. Elle est préférable à la moyenne lorsque des valeurs extrêmes sont présentes.
+
+### Min et Max
+
+Ces deux statistiques acceptent :
+
+- un champ numérique ;
+- un champ Date.
+
+Sur une date, `Min` retourne la date la plus ancienne et `Max` la date la plus récente.
+
+### First et Last
+
+Ces statistiques sont réservées aux champs texte, par exemple `status`, `district`, `facility` ou `classification`. Elles suivent l'ordre retourné par le service et nécessitent donc un ordre de requête documenté.
+
+### Distinct
+
+Compte les valeurs différentes d'un champ texte ou numérique. Pour compter des patients uniques, utiliser un identifiant préparé pour l'analyse et contrôler les doublons de visites.
+
+## 7. Périodes disponibles
+
+### Semaine ISO
+
+Semaine calendaire commençant le lundi. Les labels sont par exemple :
+
+```text
+2025 S01
+2025 S02
+```
+
+Certaines années ont une semaine 53.
 
 ### Semaine relative à l'épidémie
 
-Utiliser ce mode pour comparer la dynamique d'une flambée depuis son démarrage. Saisir la date de début de l'épidémie ; le widget crée `EPI W1`, `EPI W2`, etc.
+Après saisie de la date de début, le widget affiche :
 
-Cette option est particulièrement utile pour comparer plusieurs flambées, même si elles ont commencé à des dates différentes.
+```text
+EPI W1
+EPI W2
+EPI W3
+```
+
+Cette option permet de comparer des flambées dont les dates de début sont différentes.
 
 ### Mois, trimestre et année
 
-Utiliser le mois pour la situation report, le trimestre pour les revues programmatiques et l'année pour les tendances historiques. Le filtre utilise toujours une borne de fin exclusive afin d'éviter les doublons entre périodes.
+Les labels sont par exemple :
 
-## 5. Statistiques disponibles
+```text
+2025-01
+2025 T1
+2025
+```
 
-Le widget peut agréger un champ numérique par période. Le choix se fait dans **Statistique** et le champ dans **Champ numérique / mesure**.
+Le widget réinitialise le filtre précédent avant de recalculer une nouvelle agrégation. Un filtre hebdomadaire ne peut donc pas limiter par erreur les résultats mensuels, trimestriels ou annuels.
 
-- **Compter les enregistrements** : nombre de lignes avec une date valide ; recommandé pour une courbe de cas.
-- **Somme** : total d'un champ numérique, par exemple décès ou doses administrées.
-- **Moyenne** : moyenne arithmétique des valeurs numériques non vides.
-- **Médiane** : valeur centrale numérique, plus robuste que la moyenne face aux valeurs extrêmes.
-- **Minimum / Maximum** : minimum ou maximum d'un champ numérique ; ils acceptent aussi un champ Date et retournent alors la date la plus ancienne ou la plus récente.
-- **Première valeur / Dernière valeur** : première ou dernière valeur d'un champ texte dans l'ordre retourné par le service ; utiliser uniquement avec un ordre de requête documenté.
-- **Valeurs distinctes** : nombre de valeurs différentes, numériques ou textuelles, du champ choisi.
+## 8. Modes de filtre sur la page
 
-Le cumul est disponible pour Count, Sum, Mean et les statistiques numériques. Il est désactivé pour les résultats textuels et les dates.
+### Progressif / cumulatif
 
-Les statistiques autres que le comptage ignorent les valeurs non numériques ou vides. Le filtre temporel continue à utiliser le champ date et non le champ de mesure.
+Par défaut, la période sélectionnée affiche toutes les données depuis la première période jusqu'à la période active.
 
-## 6. Lire les résultats
+Si l'utilisateur sélectionne `2025 S04`, la carte conserve :
 
-Le bandeau de synthèse affiche :
+```text
+S01 + S02 + S03 + S04
+```
 
-- le nombre d'enregistrements valides ;
-- le pic d'enregistrements dans une période ;
-- le nombre total de périodes trouvées.
+### Une seule période
 
-Une période affiche son nombre de cas. En activant **Cumulé**, la valeur affichée devient la somme depuis la première période. Le cumul ne remplace pas le nombre de cas utilisé par la requête de filtrage.
+Seule la fenêtre de la période active est filtrée.
 
-Les enregistrements sans date reconnue sont affichés séparément. Ils ne sont pas supprimés de la source : ils sont seulement exclus de l'agrégation.
+Pour `2025 S04`, seule la période S04 est affichée.
 
-## 6. Modes d'affichage et filtre
+### Toutes les données
 
-Chaque source propose trois modes :
+La timeline et les valeurs du widget restent disponibles, mais la carte, la table et les autres composants conservent toutes les données de la source.
 
-- **Progressif / cumulatif** : la sélection de la période N affiche les données depuis la première période jusqu'à N ;
-- **Une seule période** : seule la fenêtre de la période sélectionnée est affichée ;
-- **Toutes les données (sans filtre)** : les périodes restent visibles dans le widget mais la carte et les autres composants gardent l'ensemble des données.
+## 9. Timeline
 
-Cliquer sur une période applique le mode choisi à la source utilisée par le widget. Les composants qui partagent cette source peuvent alors être actualisés :
+Chaque source possède sa propre timeline.
 
-- carte ;
-- graphique ;
-- tableau ;
-- liste ;
-- indicateur.
-
-Utiliser **Réinitialiser** pour revenir à la requête complète (`1=1`). Tester cette action avant publication afin de confirmer le comportement de la version Experience Builder installée.
-
-> Pour une couche avec un champ texte contenant des dates, l'agrégation locale peut fonctionner, mais le filtre serveur a besoin d'un vrai champ ArcGIS Date. En production, publier un champ date normalisé est fortement recommandé.
-
-## 7. Timeline
-
-- **Lire** avance automatiquement d'une période à l'autre.
+- **Lire** avance d'une période à l'autre.
 - **Arrêter** suspend la lecture.
-- Choisir une vitesse lente, normale ou rapide.
-- La période active est filtrée à chaque étape.
+- **Lent**, **Normal** et **Rapide** changent la vitesse.
+- **Cumulé** affiche la valeur cumulée lorsque la statistique est numérique.
+- La période active est toujours visible en haut de la source.
+- Le bouton **Afficher les périodes / Masquer les périodes** réduit la liste.
 
-Pour une présentation en salle de situation, désactiver les transitions inutiles et utiliser une vitesse lente. Pour une exploration rapide, utiliser la vitesse rapide.
+Lorsque la source contient plus de périodes, la liste se replie automatiquement pour éviter un widget trop long. La timeline continue de fonctionner même lorsque la liste est repliée.
 
-## 8. Bonnes pratiques de surveillance
+## 10. Indicateurs affichés
 
-- Fixer une date d'extraction et afficher cette date dans le dashboard.
-- Ne pas interpréter une baisse récente avant de tenir compte du délai de notification.
-- Distinguer date d'apparition, date de prélèvement et date de notification.
-- Utiliser le nombre de cas par période pour la courbe épidémique ; utiliser le cumul pour communiquer une charge totale.
-- Pour comparer des zones de tailles différentes, ajouter un dénominateur de population et calculer le taux dans un graphique ou une vue dédiée. Le widget ne fabrique pas de taux sans population de référence.
-- Traiter les cas suspects, probables et confirmés séparément quand la définition de cas l'exige.
-- Ne pas publier d'agrégations sur de très petits effectifs si cela présente un risque de ré-identification.
+Pour chaque source :
 
-## 9. Dépannage
+- **Nombre total d'enregistrements** : total des enregistrements avec une date valide ;
+- **Pic** : valeur maximale observée selon la statistique ;
+- étiquette de la période du pic, par exemple `2025 S12` ;
+- nombre de périodes générées ;
+- nombre de dates invalides ignorées.
 
-### Aucune période
+Pour `First`, `Last` et les mesures textuelles, le pic numérique n'est pas calculé et est remplacé par un tiret.
 
-Vérifier le nom du champ, les permissions du service et le format des dates. Consulter le compteur de dates invalides affiché par le widget.
+## 11. Interaction avec les composants de la page
 
-### Périodes décalées d'un jour
+Connecter les cartes, graphiques, tables, listes et indicateurs à la même source de données que celle configurée dans le widget.
 
-Vérifier le fuseau horaire de publication et utiliser un vrai champ Date. Éviter de convertir plusieurs fois une date UTC en heure locale.
+Lorsqu'une période est sélectionnée, le widget applique une requête temporelle à la source. En mode progressif :
 
-### `01/02/2023` mal interprété
+```sql
+date_field >= début_de_la_première_période
+AND date_field < fin_de_la_période_active
+```
 
-Sélectionner explicitement **Jour / mois / année** ou **Mois / jour / année**. Pour supprimer l'ambiguïté, convertir les dates en ISO (`2023-02-01`).
+En mode période unique :
 
-### La carte ne se filtre pas
+```sql
+date_field >= début_de_la_période_active
+AND date_field < fin_de_la_période_active
+```
 
-Confirmer que la carte utilise la même source que le widget, que le champ est de type Date et que la couche autorise les requêtes. Selon la version d'Experience Builder, il peut être nécessaire de configurer une action de données ou une vue de données partagée.
+En mode sans filtre, la requête revient à l'ensemble des données.
 
-### Le widget n'apparaît pas
+Le comportement exact dépend de la version Experience Builder et de la manière dont les composants partagent la source. Tester l'expérience avec une carte, un tableau et un indicateur avant publication.
 
-Vérifier le dossier `client/your-extensions/widgets/epi-aggregator`, redémarrer Experience Builder Developer Edition et consulter la console du navigateur.
+## 12. Couleur
 
-## 10. Limites connues
+Le paramètre **Couleur principale** personnalise :
 
-- Le widget agrège et filtre ; il ne remplace pas un pipeline ETL de qualité de données.
-- La pagination du service doit être configurée correctement pour les line-lists volumineuses. Pour plusieurs centaines de milliers d'enregistrements, préparer une table agrégée côté serveur.
-- Le filtre temporel final dépend de la capacité du service ArcGIS à interroger le champ date.
-- Les taux d'incidence, moyennes mobiles, seuils d'alerte et intervalles de confiance doivent être calculés dans une couche analytique ou un service dédié avec leurs dénominateurs et hypothèses documentés.
+- l'indicateur total ;
+- le titre de la source ;
+- la période active ;
+- les éléments sélectionnés.
+
+La couleur par défaut est `#1261a0`.
+
+## 13. Dépannage
+
+### Aucun champ Date détecté
+
+Vérifier que le champ est réellement de type Date dans la Feature Layer et non un champ texte. Vérifier également les droits de lecture du service et attendre le chargement du schéma.
+
+### Aucun champ numérique détecté
+
+Vérifier que le champ est de type Integer, BigInteger, Single, Double ou équivalent. Les nombres stockés comme texte ne sont pas proposés comme mesures numériques ; les normaliser dans la source.
+
+### Une seule année ou période apparaît
+
+Réinitialiser le widget, vérifier le mode d'affichage et changer d'agrégation. La version actuelle efface le filtre de timeline avant chaque recalcul. Si le problème persiste, vérifier qu'une vue de données ou un filtre externe ne limite pas la source.
+
+### La timeline ne filtre pas la carte
+
+Vérifier que la carte utilise la même source, que le champ est un vrai champ Date et que le service autorise les requêtes. Pour les vues de données séparées, configurer une action de données ou une source partagée.
+
+### Les valeurs numériques sont nulles
+
+Vérifier que le champ mesure est sélectionné, qu'il est numérique et que ses valeurs ne contiennent pas uniquement des textes ou des valeurs vides.
+
+### Trop de périodes
+
+Utiliser **Masquer les périodes**. La timeline continue de fonctionner et la période active reste affichée en haut.
+
+## 14. Limites
+
+- Le widget ne remplace pas un pipeline ETL de qualité de données.
+- Les très grosses line-lists devraient être pré-agrégées côté serveur.
+- Les taux d'incidence nécessitent un dénominateur de population et doivent être préparés dans une couche analytique dédiée.
+- Les intervalles de confiance, moyennes mobiles et seuils d'alerte doivent être calculés avec leurs hypothèses documentées.
+- Les petits effectifs doivent être protégés contre la ré-identification.
