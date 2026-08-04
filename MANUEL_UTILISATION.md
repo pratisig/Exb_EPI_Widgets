@@ -206,7 +206,15 @@ Chaque source possède sa propre timeline.
 
 Lorsque la source contient plus de périodes, la liste se replie automatiquement pour éviter un widget trop long. La timeline continue de fonctionner même lorsque la liste est repliée.
 
-## 10. Indicateurs affichés
+## 10. Timeline liée entre les sources
+
+Lorsque plusieurs sources utilisent la même base de périodes, le widget affiche une **Timeline liée** au-dessus des sources. Elle pilote les sources qui possèdent la même clé de période.
+
+Par exemple, si toutes les sources produisent `2025 S01`, `2025 S02` et `2025 S03`, déplacer le curseur maître vers `2025 S03` actualise les filtres de chaque source. Les sources configurées en mode **Toutes les données** restent volontairement non filtrées.
+
+Pour une synchronisation fiable, utiliser la même agrégation et la même base de semaine pour les sources à comparer.
+
+## 11. Indicateurs affichés
 
 Pour chaque source :
 
