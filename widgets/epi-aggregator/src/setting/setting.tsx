@@ -1,4 +1,4 @@
-import { React, AllWidgetSettingProps, DataSourceTypes, Immutable } from 'jimu-core'
+import { React, AllWidgetSettingProps, AllDataSourceTypes, Immutable } from 'jimu-core'
 import { DataSourceSelector } from 'jimu-ui/advanced/data-source-selector'
 import { TextInput, Label, Select, Option } from 'jimu-ui'
 import { IMConfig } from '../config'
@@ -13,7 +13,7 @@ export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
   const onSourceChange = (useDataSources: any) => props.onSettingChange({ id: props.id, useDataSources })
   return <div className="p-3">
     <Label>Line-list / source de données</Label>
-    <DataSourceSelector widgetId={props.id} types={Immutable([DataSourceTypes.FeatureLayer])} mustUseDataSource={true} useDataSources={use} useDataSourcesEnabled={props.useDataSourcesEnabled} onToggleUseDataEnabled={(enabled: boolean) => props.onSettingChange({ id: props.id, useDataSourcesEnabled: enabled })} onChange={onSourceChange} />
+    <DataSourceSelector widgetId={props.id} types={Immutable([AllDataSourceTypes.FeatureLayer])} mustUseDataSource={true} useDataSources={use} useDataSourcesEnabled={props.useDataSourcesEnabled} onToggleUseDataEnabled={(enabled: boolean) => props.onSettingChange({ id: props.id, useDataSourcesEnabled: enabled })} onChange={onSourceChange} />
     <div className="mt-4"><Label>Champ date par défaut</Label><TextInput value={config.dateField || ''} placeholder="onset_date" onChange={e => update('dateField', e.target.value)} /></div>
     <div className="mt-3"><Label>Statistique par défaut</Label><Select value={config.statistic || 'count'} onChange={e => update('statistic', e.target.value)}><Option value="count">Compter les enregistrements</Option><Option value="sum">Somme</Option><Option value="mean">Moyenne</Option><Option value="median">Médiane</Option><Option value="min">Minimum</Option><Option value="max">Maximum</Option><Option value="first">Première valeur</Option><Option value="last">Dernière valeur</Option><Option value="distinct">Valeurs distinctes</Option></Select></div>
     <div className="mt-3"><Label>Champ numérique par défaut</Label><TextInput value={config.valueField || ''} placeholder="deaths, population" onChange={e => update('valueField', e.target.value)} /></div>
