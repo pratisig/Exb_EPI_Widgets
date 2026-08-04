@@ -1,0 +1,10 @@
+{
+  "period": "epi-week",
+  "weekMode": "iso",
+  "dateConvention": "dmy",
+  "statistic": "count",
+  "dateField": "",
+  "valueField": "",
+  "outbreakStart": "",
+  "locale": "fr"
+}
