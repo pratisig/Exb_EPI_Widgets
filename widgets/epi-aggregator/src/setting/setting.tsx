@@ -36,7 +36,6 @@ export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
   return <div className="epi-setting p-3">
     <Label>Couleur principale</Label><input className="epi-color" type="color" value={config.get?.('accentColor') || '#1261a0'} onChange={e => update('accentColor', e.target.value)} />
     <Label>Couleur de la ligne timeline</Label><input className="epi-color" type="color" value={config.get?.('timelineColor') || '#1261a0'} onChange={e => update('timelineColor', e.target.value)} />
-    <Label>Couleur des marqueurs</Label><input className="epi-color" type="color" value={config.get?.('timelineMarkerColor') || '#ef6c57'} onChange={e => update('timelineMarkerColor', e.target.value)} />
     <Label>Taille de la timeline</Label><Select value={config.get?.('timelineSize') || 'medium'} onChange={e => update('timelineSize', e.target.value)}><Option value="small">Petite</Option><Option value="medium">Moyenne</Option><Option value="large">Grande</Option></Select>
     <Label>Affichage</Label><Select value={String(config.get?.('showDetails') ?? false)} onChange={e => update('showDetails', e.target.value === 'true')}><Option value="false">Timeline uniquement</Option><Option value="true">Timeline et détails des sources</Option></Select>
     <Label>Carte à piloter (optionnel)</Label><MapWidgetSelector useMapWidgetIds={props.useMapWidgetIds} onSelect={ids => props.onSettingChange({ id: props.id, useMapWidgetIds: ids })} />

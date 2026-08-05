@@ -30,7 +30,6 @@ export interface Config {
   locale: string
   accentColor?: string
   timelineColor?: string
-  timelineMarkerColor?: string
   timelineSize?: 'small' | 'medium' | 'large'
   showDetails?: boolean
   sources?: { [dataSourceId: string]: SourceConfig }
