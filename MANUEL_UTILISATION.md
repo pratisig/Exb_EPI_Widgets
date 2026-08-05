@@ -252,7 +252,7 @@ Le comportement exact dépend de la version Experience Builder et de la manière
 
 ## 12. Synchronisation avec la carte
 
-Le widget ne choisit pas le type de rendu cartographique. Les cercles proportionnels, les couleurs graduées et les plages de classes restent configurés dans la carte Experience Builder.
+Le widget ne choisit pas le type de rendu cartographique. Les cercles proportionnels, les couleurs graduées et les plages de classes restent configurés dans la carte Experience Builder. Dans le widget, seul le mode de rééchelle dynamique ou fixe peut être activé.
 
 Le widget peut piloter une carte sélectionnée dans le panneau Contenu : il applique la période active aux couches liées lorsque leur source possède le même champ Date et la même clé de période. Il peut aussi demander une rééchelle dynamique des variables visuelles déjà configurées dans le renderer de la couche. Il ne remplace pas le renderer et ne modifie pas la palette choisie par le cartographe.
 

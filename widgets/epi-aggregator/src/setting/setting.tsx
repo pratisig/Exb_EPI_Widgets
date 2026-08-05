@@ -35,6 +35,9 @@ export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
   const onSourcesChange = (sources: UseDataSource[]) => props.onSettingChange({ id: props.id, useDataSources: sources })
   return <div className="epi-setting p-3">
     <Label>Couleur principale</Label><input className="epi-color" type="color" value={config.get?.('accentColor') || '#1261a0'} onChange={e => update('accentColor', e.target.value)} />
+    <Label>Couleur de la ligne timeline</Label><input className="epi-color" type="color" value={config.get?.('timelineColor') || '#1261a0'} onChange={e => update('timelineColor', e.target.value)} />
+    <Label>Couleur des marqueurs</Label><input className="epi-color" type="color" value={config.get?.('timelineMarkerColor') || '#ef6c57'} onChange={e => update('timelineMarkerColor', e.target.value)} />
+    <Label>Taille de la timeline</Label><Select value={config.get?.('timelineSize') || 'medium'} onChange={e => update('timelineSize', e.target.value)}><Option value="small">Petite</Option><Option value="medium">Moyenne</Option><Option value="large">Grande</Option></Select>
     <Label>Carte à piloter (optionnel)</Label><MapWidgetSelector useMapWidgetIds={props.useMapWidgetIds} onSelect={ids => props.onSettingChange({ id: props.id, useMapWidgetIds: ids })} />
     <Label>Sources line-list (plusieurs possibles)</Label>
     <DataSourceSelector types={Immutable([AllDataSourceTypes.FeatureLayer])} isMultiple={true} mustUseDataSource={true} useDataSources={props.useDataSources} useDataSourcesEnabled={props.useDataSourcesEnabled} onToggleUseDataEnabled={enabled => props.onSettingChange({ id: props.id, useDataSourcesEnabled: enabled })} onChange={onSourcesChange} widgetId={props.id} />

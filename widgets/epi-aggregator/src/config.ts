@@ -29,6 +29,9 @@ export interface Config {
   outbreakStart?: string
   locale: string
   accentColor?: string
+  timelineColor?: string
+  timelineMarkerColor?: string
+  timelineSize?: 'small' | 'medium' | 'large'
   sources?: { [dataSourceId: string]: SourceConfig }
 }
 
