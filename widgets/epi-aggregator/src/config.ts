@@ -9,10 +9,6 @@ export interface SourceConfig {
   dateField?: string
   valueField?: string
   valueType?: 'number' | 'date' | 'text'
-  metricMode?: 'aggregate' | 'rate'
-  numeratorField?: string
-  denominatorField?: string
-  rateFactor?: number
   statistic: Statistic
   period: Period
   weekMode: WeekMode
@@ -20,8 +16,6 @@ export interface SourceConfig {
   dateConvention: DateConvention
   label?: string
   filterMode: 'single' | 'cumulative' | 'none'
-  mapField?: string
-  mapStyle?: 'auto' | 'circle' | 'graduated'
   scaleMode?: 'dynamic' | 'fixed'
 }
 

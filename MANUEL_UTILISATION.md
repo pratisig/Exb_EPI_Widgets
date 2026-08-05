@@ -131,33 +131,6 @@ Ces statistiques sont réservées aux champs texte, par exemple `status`, `distr
 
 Compte les valeurs différentes d'un champ texte ou numérique. Pour compter des patients uniques, utiliser un identifiant préparé pour l'analyse et contrôler les doublons de visites.
 
-## 7. Calcul des taux
-
-Le mode **Taux (numérateur / dénominateur)** permet de calculer un taux par période avec trois paramètres :
-
-```text
-Numérateur
-Dénominateur
-Facteur du taux
-```
-
-La formule est :
-
-```text
-somme(numérateur) / somme(dénominateur) × facteur
-```
-
-Exemples :
-
-```text
-Taux d'attaque       = cas / population à risque × 100
-Létalité             = décès / cas × 100
-Incidence            = nouveaux cas / population × 100 000
-Mortalité            = décès / population × 100 000
-```
-
-Le widget protège les divisions par zéro en retournant zéro lorsque le dénominateur est vide ou égal à zéro. Le choix de la définition épidémiologique et du dénominateur reste sous la responsabilité de l'équipe de surveillance.
-
 ## 8. Affichage et filtre sur la page
 
 ## 7. Périodes disponibles
@@ -277,19 +250,13 @@ En mode sans filtre, la requête revient à l'ensemble des données.
 
 Le comportement exact dépend de la version Experience Builder et de la manière dont les composants partagent la source. Tester l'expérience avec une carte, un tableau et un indicateur avant publication.
 
-## 12. Cartographie dynamique
+## 12. Synchronisation avec la carte
 
-Le panneau Contenu permet maintenant de choisir une carte et, pour chaque source, un champ cartographique optionnel.
+Le widget ne choisit pas le type de rendu cartographique. Les cercles proportionnels, les couleurs graduées et les plages de classes restent configurés dans la carte Experience Builder.
 
-- **Automatique** : cercle proportionnel pour les points, couleurs graduées pour les polygones ;
-- **Cercles proportionnels** : taille calculée par variable visuelle sur le champ choisi ;
-- **Couleurs graduées** : rampe bleu clair à bleu foncé ;
-- **Échelle dynamique** : bornes recalculées selon la période active ;
-- **Échelle fixe** : bornes conservées sur la série chargée.
+Le widget peut piloter une carte sélectionnée dans le panneau Contenu : il applique la période active aux couches liées lorsque leur source possède le même champ Date et la même clé de période. Il peut aussi demander une rééchelle dynamique des variables visuelles déjà configurées dans le renderer de la couche. Il ne remplace pas le renderer et ne modifie pas la palette choisie par le cartographe.
 
-Le champ cartographique doit exister dans la couche affichée sur la carte et être numérique. Le widget identifie la couche par la source de données sélectionnée et actualise son renderer lorsque la période change. Une couche peut donc rester filtrée par la timeline tout en gardant une symbologie cohérente.
-
-Pour des taux, utiliser une couche déjà agrégée par zone avec un champ de taux ou configurer le mode numérateur/dénominateur du widget. Les définitions de taux et les dénominateurs doivent être documentés par l'équipe de surveillance.
+Pour lier une couche, sélectionner la même source dans la carte et dans Epi Aggregator, utiliser le même champ Date et la même base d'agrégation, puis sélectionner la carte dans **Carte à piloter**.
 
 ## 13. Couleur
 

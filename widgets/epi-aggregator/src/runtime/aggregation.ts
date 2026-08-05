@@ -73,12 +73,8 @@ function numericValue(value: unknown): number | null {
   return null
 }
 
-function calculate(records: any[], valueField: string | undefined, statistic: Statistic, valueType: 'number' | 'date' | 'text' = 'number', metricMode: 'aggregate' | 'rate' = 'aggregate', numeratorField?: string, denominatorField?: string, rateFactor = 100): any {
-  if (statistic === 'count' && metricMode !== 'rate') return records.length
-  if (metricMode === 'rate') {
-    const sum = (field?: string) => records.reduce((total, record) => { const attrs = record?.getData ? record.getData() : (record?.attributes || record); return total + (numericValue(field ? attrs?.[field] : null) || 0) }, 0)
-    const denominator = sum(denominatorField); return denominator ? (sum(numeratorField) / denominator) * rateFactor : 0
-  }
+function calculate(records: any[], valueField: string | undefined, statistic: Statistic, valueType: 'number' | 'date' | 'text' = 'number'): any {
+  if (statistic === 'count') return records.length
   const raw = records.map(record => { const attrs = record?.getData ? record.getData() : (record?.attributes || record); return valueField ? attrs?.[valueField] : null }).filter(v => v !== null && v !== undefined && v !== '')
   if (statistic === 'distinct') return new Set(raw.map(v => String(v))).size
   if (statistic === 'first' || statistic === 'last') return raw.length ? raw[statistic === 'first' ? 0 : raw.length - 1] : ''
@@ -97,7 +93,7 @@ function calculate(records: any[], valueField: string | undefined, statistic: St
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2
 }
 
-export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy', statistic: Statistic = 'count', valueField?: string, valueType: 'number' | 'date' | 'text' = 'number', metricMode: 'aggregate' | 'rate' = 'aggregate', numeratorField?: string, denominatorField?: string, rateFactor = 100): { rows: AggregateRow[], invalid: number } {
+export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy', statistic: Statistic = 'count', valueField?: string, valueType: 'number' | 'date' | 'text' = 'number'): { rows: AggregateRow[], invalid: number } {
   const outbreak = parseEpiDate(outbreakStart, convention); const groups = new Map<string, AggregateRow>(); let invalid = 0
   records.forEach(record => {
     const attrs = record?.getData ? record.getData() : (record?.attributes || record); const date = parseEpiDate(attrs?.[dateField], convention)
@@ -106,6 +102,6 @@ export function aggregate(records: any[], dateField: string, period: Period, wee
     if (existing) { existing.count++; existing.records.push(record) } else groups.set(p.key, { ...p, count: 1, value: 0, records: [record] })
   })
   const rows = Array.from(groups.values()).sort((a, b) => a.start.getTime() - b.start.getTime())
-  rows.forEach(row => { row.value = calculate(row.records, valueField, statistic, valueType, metricMode, numeratorField, denominatorField, rateFactor) })
+  rows.forEach(row => { row.value = calculate(row.records, valueField, statistic, valueType) })
   return { rows, invalid }
 }
