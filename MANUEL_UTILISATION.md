@@ -208,7 +208,11 @@ Chaque source possède sa propre timeline.
 
 Lorsque la source contient plus de périodes, la liste se replie automatiquement pour éviter un widget trop long. La timeline continue de fonctionner même lorsque la liste est repliée.
 
-## 10. Timeline liée entre les sources
+## 10. Mode timeline uniquement
+
+Par défaut, le widget affiche uniquement la timeline maître afin de rester compact. Les cartes de synthèse par source peuvent être activées dans **Affichage → Timeline et détails des sources**. Même lorsqu'elles sont masquées, les sources configurées continuent à être filtrées et la timeline continue à piloter la carte et les composants connectés.
+
+## 11. Timeline liée entre les sources
 
 Lorsque plusieurs sources utilisent la même base de périodes, le widget affiche une **Timeline liée** au-dessus des sources. Elle pilote les sources qui possèdent la même clé de période.
 

@@ -13,5 +13,6 @@
   "accentColor": "#1261a0",
   "timelineColor": "#1261a0",
   "timelineMarkerColor": "#ef6c57",
-  "timelineSize": "medium"
+  "timelineSize": "medium",
+  "showDetails": false
 }
