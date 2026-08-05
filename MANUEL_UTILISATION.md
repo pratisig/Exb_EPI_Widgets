@@ -73,7 +73,7 @@ Avant publication :
 
 ## 5. Configuration de plusieurs sources
 
-Chaque source possède sa propre configuration et son propre résultat.
+Chaque source possède sa propre configuration et son propre résultat. Une source ajoutée mais sans champ Date configuré reste masquée dans le panneau d'analyse ; elle apparaît uniquement dans le panneau Contenu jusqu'à sa configuration.
 
 Exemple :
 
