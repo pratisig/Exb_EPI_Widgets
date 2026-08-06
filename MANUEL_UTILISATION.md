@@ -316,3 +316,7 @@ Chaque source peut maintenant déclarer un **Champ de regroupement spatial** opt
 - Les taux d'incidence nécessitent un dénominateur de population et doivent être préparés dans une couche analytique dédiée.
 - Les intervalles de confiance, moyennes mobiles et seuils d'alerte doivent être calculés avec leurs hypothèses documentées.
 - Les petits effectifs doivent être protégés contre la ré-identification.
+
+## Couche virtuelle agrégée
+
+Le moteur contient maintenant un adaptateur pur de jointure dans `src/runtime/virtualLayer.ts`. Il associe les agrégats période/zone aux géométries de la couche frontière sans modifier les données sources. Les entités temporaires produites contiennent `boundary`, `period`, `value`, `count` et `label`. L'adaptateur carte Experience Builder utilisera ces entités pour alimenter une FeatureLayer client-side.
