@@ -301,7 +301,11 @@ Vérifier que le champ mesure est sélectionné, qu'il est numérique et que ses
 
 Utiliser **Masquer les périodes**. La timeline continue de fonctionner et la période active reste affichée en haut.
 
-## 14. Limites
+## 14. Export
+
+Le bouton **CSV** de la timeline télécharge les périodes actuellement agrégées avec : la clé, le label, le nombre d'enregistrements, la valeur, le début et la fin de chaque période. Cet export est destiné au contrôle, à la revue de situation et à la réutilisation analytique.
+
+## 15. Limites
 
 - Le widget ne remplace pas un pipeline ETL de qualité de données.
 - Les très grosses line-lists devraient être pré-agrégées côté serveur.
