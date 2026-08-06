@@ -305,7 +305,11 @@ Utiliser **Masquer les périodes**. La timeline continue de fonctionner et la p�
 
 Le bouton **CSV** de la timeline télécharge les périodes actuellement agrégées avec : la clé, le label, le nombre d'enregistrements, la valeur, le début et la fin de chaque période. Cet export est destiné au contrôle, à la revue de situation et à la réutilisation analytique.
 
-## 15. Limites
+## 15. Regroupement spatial
+
+Chaque source peut maintenant déclarer un **Champ de regroupement spatial** optionnel, par exemple `adm1_name`, `adm2_name`, `district` ou `facility`. Le moteur spatial produit des résultats par période et par zone sans modifier la line-list. La jointure avec une couche de polygones dédiée et la couche virtuelle cartographique seront activées dans l'étape suivante.
+
+## 16. Limites
 
 - Le widget ne remplace pas un pipeline ETL de qualité de données.
 - Les très grosses line-lists devraient être pré-agrégées côté serveur.
