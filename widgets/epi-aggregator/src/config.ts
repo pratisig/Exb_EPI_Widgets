@@ -17,6 +17,8 @@ export interface SourceConfig {
   label?: string
   filterMode: 'single' | 'cumulative' | 'none'
   scaleMode?: 'dynamic' | 'fixed'
+  fillMissingPeriods?: boolean
+  decimalPlaces?: number
 }
 
 export interface Config {

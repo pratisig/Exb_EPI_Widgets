@@ -5,7 +5,7 @@ import { TextInput, Label, Select, Option } from 'jimu-ui'
 import { IMConfig, SourceConfig, Statistic } from '../config'
 import './style.css'
 
-const defaultSource: SourceConfig = { dateField: '', valueField: '', valueType: 'number', statistic: 'count', period: 'epi-week', weekMode: 'iso', dateConvention: 'dmy', outbreakStart: '', filterMode: 'cumulative', scaleMode: 'dynamic' }
+const defaultSource: SourceConfig = { dateField: '', valueField: '', valueType: 'number', statistic: 'count', period: 'epi-week', weekMode: 'iso', dateConvention: 'dmy', outbreakStart: '', filterMode: 'cumulative', scaleMode: 'dynamic', fillMissingPeriods: true, decimalPlaces: 2 }
 const statistics: Array<[Statistic, string]> = [['count', 'Compter les enregistrements'], ['sum', 'Somme'], ['mean', 'Moyenne'], ['median', 'Médiane'], ['min', 'Minimum'], ['max', 'Maximum'], ['first', 'Première valeur'], ['last', 'Dernière valeur'], ['distinct', 'Valeurs distinctes']]
 
 export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
@@ -54,6 +54,8 @@ export default function Setting(props: AllWidgetSettingProps<IMConfig>) {
         <Label>Convention des dates</Label><Select value={c.dateConvention || 'dmy'} onChange={e => updateSource(id, 'dateConvention', e.target.value)}><Option value="dmy">Jour / mois / année</Option><Option value="mdy">Mois / jour / année</Option><Option value="auto">Automatique</Option></Select>
         <Label>Mode d'affichage sur la page</Label><Select value={c.filterMode || 'cumulative'} onChange={e => updateSource(id, 'filterMode', e.target.value)}><Option value="cumulative">Progressif / cumulatif jusqu'à la période</Option><Option value="single">Une seule période</Option><Option value="none">Toutes les données (sans filtre)</Option></Select>
         <Label>Échelle des symboles</Label><Select value={c.scaleMode || 'dynamic'} onChange={e => updateSource(id, 'scaleMode', e.target.value)}><Option value="dynamic">Dynamique selon la période</Option><Option value="fixed">Fixe sur toute l'analyse</Option></Select>
+        <Label>Semaines / périodes sans données</Label><Select value={String(c.fillMissingPeriods !== false)} onChange={e => updateSource(id, 'fillMissingPeriods', e.target.value === 'true')}><Option value="true">Créer des périodes à zéro</Option><Option value="false">Masquer les périodes absentes</Option></Select>
+        <Label>Décimales affichées</Label><Select value={String(c.decimalPlaces ?? 2)} onChange={e => updateSource(id, 'decimalPlaces', Number(e.target.value))}><Option value="0">0</Option><Option value="1">1</Option><Option value="2">2</Option><Option value="3">3</Option></Select>
       </div>
     })}
   </div>

@@ -8,6 +8,8 @@
   "valueType": "number",
   "filterMode": "cumulative",
   "scaleMode": "dynamic",
+  "fillMissingPeriods": true,
+  "decimalPlaces": 2,
   "outbreakStart": "",
   "locale": "fr",
   "accentColor": "#1261a0",

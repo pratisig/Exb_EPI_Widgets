@@ -45,7 +45,7 @@ esriFieldTypeDate
 
 Les colonnes texte qui contiennent des dates ne sont volontairement pas proposées dans la liste automatique des champs Date. Pour une line-list hétérogène, conserver le champ original puis créer un champ Date normalisé dans ArcGIS est la solution recommandée.
 
-Les dates locales saisies dans le widget restent prises en charge dans les formats ISO, timestamps ArcGIS, dates Excel et formats jour/mois ou mois/jour.
+Les dates locales saisies dans le widget restent prises en charge dans les formats ISO, timestamps ArcGIS, dates Excel et formats jour/mois ou mois/jour. Les libellés de semaine texte tels que `Week 01-2026`, `2026-W01`, `W01-2026` et `S01_2026` sont aussi normalisés en semaine ISO.
 
 ### Contrôles avant analyse
 
@@ -159,6 +159,8 @@ EPI W3
 Cette option permet de comparer des flambées dont les dates de début sont différentes.
 
 ### Mois, trimestre et année
+
+Lorsque **Créer des périodes à zéro** est activé, le widget complète automatiquement les trous entre la première et la dernière période. Une semaine sans enregistrement apparaît alors avec une valeur zéro, ce qui évite de confondre absence de notification et absence de période.
 
 Les labels sont par exemple :
 

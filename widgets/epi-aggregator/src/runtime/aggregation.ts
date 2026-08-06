@@ -18,6 +18,10 @@ export function parseEpiDate(value: unknown, convention: DateConvention = 'dmy')
   }
   const text = String(value).trim()
   if (!text) return null
+  const week = text.match(/^(?:week|wk|w|s)[ _-]?(\d{1,2})[ _/-]?(\d{4})$/i) || text.match(/^(\d{4})[ _/-]?(?:week|wk|w|s)[ _-]?(\d{1,2})$/i)
+  if (week) {
+    const weekNumber = +(week[1].length === 4 ? week[2] : week[1]); const year = +(week[1].length === 4 ? week[1] : week[2]); const jan4 = new Date(Date.UTC(year, 0, 4)); const day = jan4.getUTCDay() || 7; const monday = new Date(jan4); monday.setUTCDate(jan4.getUTCDate() - day + 1 + (weekNumber - 1) * 7); return monday
+  }
   const native = new Date(text)
   // Resolve slash dates before the browser parser: 01/02/2023 is 1 February
   // for the field-team convention, whereas browser parsers usually make it January 2.
@@ -93,7 +97,7 @@ function calculate(records: any[], valueField: string | undefined, statistic: St
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2
 }
 
-export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy', statistic: Statistic = 'count', valueField?: string, valueType: 'number' | 'date' | 'text' = 'number'): { rows: AggregateRow[], invalid: number } {
+export function aggregate(records: any[], dateField: string, period: Period, weekMode: WeekMode, outbreakStart?: string, convention: DateConvention = 'dmy', statistic: Statistic = 'count', valueField?: string, valueType: 'number' | 'date' | 'text' = 'number', fillMissingPeriods = false): { rows: AggregateRow[], invalid: number } {
   const outbreak = parseEpiDate(outbreakStart, convention); const groups = new Map<string, AggregateRow>(); let invalid = 0
   records.forEach(record => {
     const attrs = record?.getData ? record.getData() : (record?.attributes || record); const date = parseEpiDate(attrs?.[dateField], convention)
@@ -101,7 +105,12 @@ export function aggregate(records: any[], dateField: string, period: Period, wee
     const p = periodFor(date, period, weekMode, outbreak || undefined); const existing = groups.get(p.key)
     if (existing) { existing.count++; existing.records.push(record) } else groups.set(p.key, { ...p, count: 1, value: 0, records: [record] })
   })
-  const rows = Array.from(groups.values()).sort((a, b) => a.start.getTime() - b.start.getTime())
+  let rows = Array.from(groups.values()).sort((a, b) => a.start.getTime() - b.start.getTime())
   rows.forEach(row => { row.value = calculate(row.records, valueField, statistic, valueType) })
+  if (fillMissingPeriods && rows.length > 1) {
+    const existing = new Map(rows.map(row => [row.key, row])); const complete: AggregateRow[] = []; let cursor = new Date(rows[0].start); const last = rows[rows.length - 1].start
+    while (cursor.getTime() <= last.getTime()) { const p = periodFor(cursor, period, weekMode, outbreak || undefined); complete.push(existing.get(p.key) || { ...p, count: 0, value: 0, records: [] }); if (period === 'year') cursor = utc(cursor.getUTCFullYear() + 1, 0, 1); else if (period === 'quarter') cursor = utc(cursor.getUTCFullYear(), cursor.getUTCMonth() + 3, 1); else if (period === 'month') cursor = utc(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 1); else cursor = new Date(cursor.getTime() + 7 * 86400000) }
+    rows = complete
+  }
   return { rows, invalid }
 }
