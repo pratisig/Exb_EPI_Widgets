@@ -15,5 +15,6 @@
   "accentColor": "#1261a0",
   "timelineColor": "#1261a0",
   "timelineSize": "medium",
-  "showDetails": false
+  "showDetails": false,
+  "boundarySourceId": ""
 }

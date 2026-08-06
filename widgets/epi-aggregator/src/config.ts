@@ -35,6 +35,7 @@ export interface Config {
   timelineColor?: string
   timelineSize?: 'small' | 'medium' | 'large'
   showDetails?: boolean
+  boundarySourceId?: string
   sources?: { [dataSourceId: string]: SourceConfig }
 }
 
