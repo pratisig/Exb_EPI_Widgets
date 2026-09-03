@@ -1,0 +1,23 @@
+{
+  "period": "epi-week",
+  "weekMode": "iso",
+  "dateConvention": "dmy",
+  "statistic": "count",
+  "dateField": "",
+  "valueField": "",
+  "valueType": "number",
+  "filterMode": "cumulative",
+  "scaleMode": "dynamic",
+  "fillMissingPeriods": true,
+  "decimalPlaces": 2,
+  "outbreakStart": "",
+  "locale": "fr",
+  "accentColor": "#1261a0",
+  "timelineColor": "#1261a0",
+  "timelineSize": "medium",
+  "showDetails": false,
+  "comparisonMode": "continuous",
+  "comparisonYears": [],
+  "referenceYear": 0,
+  "boundarySourceId": ""
+}

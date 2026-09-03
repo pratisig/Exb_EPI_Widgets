@@ -1,0 +1,15 @@
+{
+  "name": "epi-aggregator",
+  "label": "Epi Aggregator",
+  "type": "widget",
+  "version": "2.0.0",
+  "exbVersion": "1.14.0",
+  "author": "MSF GIS community",
+  "description": "Normalise epidemic dates, aggregate line lists and publish a time filter to connected Experience Builder data sources.",
+  "copyright": "",
+  "license": "Apache-2.0",
+  "properties": { "hasConfigInSettingPage": true, "canCreateMapView": true, "supportAutoSize": true },
+  "translatedLocales": ["en", "fr"],
+  "defaultSize": { "width": 380, "height": 520 },
+  "dependency": ["jimu-arcgis"]
+}
