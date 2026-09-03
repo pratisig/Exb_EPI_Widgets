@@ -16,5 +16,8 @@
   "timelineColor": "#1261a0",
   "timelineSize": "medium",
   "showDetails": false,
+  "comparisonMode": "continuous",
+  "comparisonYears": [],
+  "referenceYear": 0,
   "boundarySourceId": ""
 }

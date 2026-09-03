@@ -20,6 +20,9 @@ export interface SourceConfig {
   scaleMode?: 'dynamic' | 'fixed'
   fillMissingPeriods?: boolean
   decimalPlaces?: number
+  comparisonMode?: 'continuous' | 'compare-years'
+  comparisonYears?: number[]
+  referenceYear?: number
 }
 
 export interface Config {
@@ -35,6 +38,9 @@ export interface Config {
   timelineColor?: string
   timelineSize?: 'small' | 'medium' | 'large'
   showDetails?: boolean
+  comparisonMode?: 'continuous' | 'compare-years'
+  comparisonYears?: number[]
+  referenceYear?: number
   boundarySourceId?: string
   sources?: { [dataSourceId: string]: SourceConfig }
 }
