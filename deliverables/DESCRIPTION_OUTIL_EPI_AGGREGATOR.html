@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang='fr'><head><meta charset='utf-8'><title>Epi Aggregator — Experience Builder widget</title><style>
+@page { size: A4; margin: 1.6cm 1.4cm; }
+body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; color: #1f2933; line-height: 1.45; }
+h1 { font-size: 18pt; color: #0b4f83; border-bottom: 2px solid #0b4f83; padding-bottom: 6px; }
+h2 { font-size: 13pt; color: #1261a0; margin-top: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; }
+h3 { font-size: 11pt; color: #1d4f6e; margin-top: 12px; }
+h4 { font-size: 10pt; color: #1d4f6e; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; font-size: 8pt; }
+th, td { border: 1px solid #b8c4d0; padding: 4px 5px; text-align: left; vertical-align: top; word-wrap: break-word; }
+th { background: #eaf4fa; color: #0b4f83; }
+code, pre { font-family: Courier, monospace; font-size: 8pt; background: #f4f6f8; }
+pre { border: 1px solid #dde3e9; padding: 6px; white-space: pre-wrap; }
+blockquote { border-left: 3px solid #1261a0; margin: 6px 0; padding: 2px 8px; background: #f5fafd; }
+ul, ol { margin: 4px 0 8px 18px; }
+li { margin-bottom: 2px; }
+hr { border: 0; border-top: 1px solid #cbd5e1; margin: 14px 0; }
+</style></head><body><h1 id="epi-aggregator-experience-builder-widget">Epi Aggregator — Experience Builder widget</h1>
+<p>Widget custom pour ArcGIS Experience Builder, conçu pour les line-lists d'épidémies (MSF et partenaires humanitaires). Il transforme un champ de date hétérogène en périodes directement utilisables par les cartes, graphiques, listes, tables et indicateurs connectés à la même source.</p>
+<h2 id="version">Version</h2>
+<table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Version du widget</td>
+<td><code>2.0.0</code> (<code>manifest.json</code>)</td>
+</tr>
+<tr>
+<td>Version Experience Builder déclarée</td>
+<td><code>exbVersion: "1.14.0"</code> — l'outillage de test cible ExB 1.15 / Node 20 LTS ; à confirmer par le GIS Centre</td>
+</tr>
+<tr>
+<td>Licence</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td>Locales</td>
+<td><code>en</code>, <code>fr</code></td>
+</tr>
+</tbody>
+</table>
+<p>Aucun tag Git n'est publié : la version de référence est identifiée par le commit. Voir <code>DOSSIER_PROPOSITION_GIS_CENTRE.md</code> § 3 pour la traçabilité complète.</p>
+<h2 id="fonctions">Fonctions</h2>
+<ul>
+<li>Plusieurs sources line-list dans un même widget, avec champ date, mesure, statistique et période configurables séparément pour chaque source, plus une timeline liée lorsque les clés de période correspondent.</li>
+<li>Champ temporel sélectionnable parmi les champs <strong>Date natifs</strong> et, sur demande, parmi les <strong>champs texte semaine</strong> (<code>2025-W04</code>, <code>Week 03-2025</code>, <code>S01_2026</code>, <code>W01-2026</code>), normalisés en semaine ISO.</li>
+<li>Lecture des dates ISO, timestamps ArcGIS, dates Excel, <code>DD/MM/YYYY</code>, <code>MM/DD/YYYY</code>, <code>YYYY-MM-DD</code> et formats texte JavaScript.</li>
+<li>Agrégation par semaine épidémiologique ISO (S1–S53), mois, trimestre et année.</li>
+<li>Statistiques par période : comptage, somme, moyenne, médiane, minimum, maximum, première/dernière valeur et valeurs distinctes sur un champ numérique, numérique ou date, ou texte.</li>
+<li>Deux bases de semaine : semaine calendaire ISO ou semaine relative au début de l'épidémie (<code>EPI W1</code>, <code>EPI W2</code>, …).</li>
+<li>Comptage par période, signalement des dates illisibles et filtre de la source par période.</li>
+<li>Timeline liée (Play/Stop, pas à pas, vitesse, total cumulé) qui avance automatiquement et applique le filtre aux widgets connectés ; chaque source conserve en plus sa propre timeline pour rester pilotable individuellement.</li>
+<li>Liste de périodes repliable (<strong>Afficher les périodes / Masquer les périodes</strong>) et valeur affichée sur chaque période, en brut ou en cumulé.</li>
+<li>Interface bilingue français/anglais.</li>
+<li>Convention configurable pour les dates ambiguës (<code>jour/mois</code>, <code>mois/jour</code>, automatique).</li>
+<li>Synthèse de qualité et de surveillance : cas valides, dates ignorées, pic et nombre de périodes, plus agrégats zone × période lorsqu'un champ de regroupement est configuré.</li>
+<li>Mode cumulatif pour suivre la charge totale, bouton de réinitialisation du filtre, vitesse de timeline réglable.</li>
+<li>Période active, pic avec son label et total d'enregistrements affichés pour chaque source.</li>
+<li>Comparaison inter-annuelle alignée (delta et %) et export CSV (global ou par zone).</li>
+<li>Regroupement par champ administratif et couche virtuelle temporaire jointe aux géométries d'une couche frontière, sans modification des données sources.</li>
+<li>Manuel utilisateur complet dans <code>MANUEL_UTILISATION.md</code>, protocole de test dans <code>GUIDE_TRANSFERT_TEST_GIS_CENTRE.md</code>, dossier de décision dans <code>DOSSIER_PROPOSITION_GIS_CENTRE.md</code>.</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<ol>
+<li>Copier <code>widgets/epi-aggregator</code> dans le dossier <code>client/your-extensions/widgets</code> du dépôt Experience Builder Developer Edition (ou dans le répertoire d'extensions prévu par votre organisation).</li>
+<li>Lancer <code>npm ci</code> puis <code>npm start</code> dans Experience Builder. Pour une version déployée, utiliser le processus officiel <code>npm run build</code> de votre version d'Experience Builder.</li>
+<li>Ajouter <strong>Epi Aggregator</strong> à l'expérience, choisir la couche/table de line-list dans les paramètres et renseigner le champ temporel (ex. <code>onset_date</code>).</li>
+<li>Connecter les cartes, graphiques, listes, tables et indicateurs à la même source de données. La sélection d'une période met à jour la requête de la source avec une fenêtre <code>[début, fin)</code>.</li>
+</ol>
+<p>Sous Windows, <code>tools/Start-ExperienceBuilder.ps1</code> automatise l'activation de Node 20, l'installation des dépendances, la copie du widget et le démarrage du serveur et du client (voir <code>tools/README.md</code>).</p>
+<blockquote>
+<p>Le widget est livré sans <code>node_modules</code> ni lockfile : les dépendances sont celles de l'instance Experience Builder qui l'héberge (<code>jimu-core</code>, <code>jimu-ui</code>, <code>jimu-arcgis</code>). Aucune dépendance externe n'est ajoutée.</p>
+</blockquote>
+<h2 id="notes-gis-donnees">Notes GIS / données</h2>
+<ul>
+<li>Pour de meilleures performances sur une grosse line-list, publier le champ date comme vrai champ <code>esriFieldTypeDate</code>. Les données locales ou les dates dans des formats mélangés peuvent être normalisées dans le widget, mais le filtre serveur final nécessite un champ date interrogeable par ArcGIS.</li>
+<li><strong>Champ texte semaine.</strong> Un champ texte contenant des libellés de semaine peut être utilisé comme champ temporel : l'agrégation, la timeline, les indicateurs et l'export CSV fonctionnent. En revanche, un filtre serveur <code>DATE '…'</code> est impossible sur un champ texte : le widget désactive alors le filtrage de la source, de la carte et des composants connectés, et affiche un avertissement explicite. Pour filtrer la carte, utiliser un champ <code>esriFieldTypeDate</code>.</li>
+<li>Les dates ambiguës où les deux premiers nombres sont inférieurs ou égaux à 12 sont interprétées en convention jour/mois, convention par défaut des équipes terrain. Utiliser ISO pour éliminer toute ambiguïté.</li>
+<li>Une semaine ISO peut être <code>S53</code> certaines années ; le widget ne force pas artificiellement 52 semaines.</li>
+<li>La période active est appliquée via <code>updateQueryParams</code> avec l'identifiant du widget, et via <code>definitionExpression</code> sur la couche cartographique liée. Si l'expérience utilise des vues de données séparées, relier les widgets à la même source ou configurer une action de message/filtre de données dans Experience Builder.</li>
+<li>Le widget ne modifie jamais les données sources. La couche virtuelle du regroupement par zone est temporaire et côté client uniquement.</li>
+</ul>
+<h2 id="verification-avant-livraison">Vérification avant livraison</h2>
+<p>Chaque modification livrée est vérifiée par compilation statique (bundling TSX/TS et <code>tsc --strict</code>, dépendances <code>jimu-*</code> remplacées par des stubs de types) : aucune erreur de typage ni de compilation, aucune variable ou import inutilisé. La validation du comportement dans Experience Builder reste manuelle et est décrite dans le protocole de test.</p>
+<h2 id="versions-imprimables">Versions imprimables</h2>
+<p>Les versions PDF, HTML et DOCX de cette description, du manuel, du guide de transfert et du dossier de proposition sont générées dans <code>deliverables/</code> (voir <code>deliverables/README.md</code> pour le mode de régénération).</p>
+<pre><code class="language-text">deliverables/DESCRIPTION_OUTIL_EPI_AGGREGATOR.pdf
+deliverables/DESCRIPTION_OUTIL_EPI_AGGREGATOR.docx
+</code></pre>
+<h2 id="structure">Structure</h2>
+<ul>
+<li><code>src/runtime/aggregation.ts</code> : parsing et moteur d'agrégation indépendant d'ExB, facilement testable.</li>
+<li><code>src/runtime/comparison.ts</code> : alignement des périodes entre années.</li>
+<li><code>src/runtime/spatialAggregation.ts</code> : agrégats période × zone.</li>
+<li><code>src/runtime/virtualLayer.ts</code> : jointure des agrégats avec les géométries d'une couche frontière.</li>
+<li><code>src/runtime/widget.tsx</code> : interface, requête de la line-list, filtre, timlines et carte.</li>
+<li><code>src/setting/setting.tsx</code> : sélection de source et configuration.</li>
+</ul></body></html>

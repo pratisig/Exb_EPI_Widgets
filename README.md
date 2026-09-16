@@ -57,6 +57,15 @@ Sous Windows, `tools/Start-ExperienceBuilder.ps1` automatise l'activation de Nod
 
 Chaque modification livrée est vérifiée par compilation statique (bundling TSX/TS et `tsc --strict`, dépendances `jimu-*` remplacées par des stubs de types) : aucune erreur de typage ni de compilation, aucune variable ou import inutilisé. La validation du comportement dans Experience Builder reste manuelle et est décrite dans le protocole de test.
 
+## Versions imprimables
+
+Les versions PDF, HTML et DOCX de cette description, du manuel, du guide de transfert et du dossier de proposition sont générées dans `deliverables/` (voir `deliverables/README.md` pour le mode de régénération).
+
+```text
+deliverables/DESCRIPTION_OUTIL_EPI_AGGREGATOR.pdf
+deliverables/DESCRIPTION_OUTIL_EPI_AGGREGATOR.docx
+```
+
 ## Structure
 
 - `src/runtime/aggregation.ts` : parsing et moteur d'agrégation indépendant d'ExB, facilement testable.

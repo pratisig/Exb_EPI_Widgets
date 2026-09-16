@@ -9,6 +9,10 @@ Requirements: Python 3.9+, `markdown`, `xhtml2pdf`, `python-docx`.
 
 Usage:
     python tools/md-to-deliverables.py DOSSIER_PROPOSITION_GIS_CENTRE.md deliverables
+    python tools/md-to-deliverables.py README.md deliverables DESCRIPTION_OUTIL_EPI_AGGREGATOR
+
+The optional third argument renames the generated files, which is useful when the
+Markdown file name is not the name to publish (e.g. README.md as "Description de l'outil").
 """
 import html
 import os
@@ -200,7 +204,7 @@ def main() -> int:
     with open(source, encoding="utf-8") as handle:
         text = handle.read()
     title = next((line.lstrip("# ").strip() for line in text.split("\n") if line.startswith("# ")), os.path.basename(source))
-    base = os.path.splitext(os.path.basename(source))[0]
+    base = sys.argv[3].strip() if len(sys.argv) > 3 and sys.argv[3].strip() else os.path.splitext(os.path.basename(source))[0]
 
     html_doc = md_to_html(text, title)
     html_path = os.path.join(outdir, f"{base}.html")
