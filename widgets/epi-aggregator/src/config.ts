@@ -7,6 +7,10 @@ export type Statistic = 'count' | 'sum' | 'mean' | 'median' | 'min' | 'max' | 'f
 
 export interface SourceConfig {
   dateField?: string
+  /** 'date' for a native esriFieldTypeDate field, 'text' for an EpiWeek label such as
+   * `2025-W04` or `Week 03-2025`. A text field is aggregated normally but cannot be used
+   * for the server-side temporal filter. */
+  dateFieldType?: 'date' | 'text'
   boundaryField?: string
   valueField?: string
   valueType?: 'number' | 'date' | 'text'

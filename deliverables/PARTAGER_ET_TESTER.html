@@ -1,0 +1,327 @@
+<!DOCTYPE html><html lang='fr'><head><meta charset='utf-8'><title>Partager et tester Epi Aggregator 2.0</title><style>
+@page { size: A4; margin: 1.6cm 1.4cm; }
+body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; color: #1f2933; line-height: 1.45; }
+h1 { font-size: 18pt; color: #0b4f83; border-bottom: 2px solid #0b4f83; padding-bottom: 6px; }
+h2 { font-size: 13pt; color: #1261a0; margin-top: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; }
+h3 { font-size: 11pt; color: #1d4f6e; margin-top: 12px; }
+h4 { font-size: 10pt; color: #1d4f6e; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; font-size: 8pt; }
+th, td { border: 1px solid #b8c4d0; padding: 4px 5px; text-align: left; vertical-align: top; word-wrap: break-word; }
+th { background: #eaf4fa; color: #0b4f83; }
+code, pre { font-family: Courier, monospace; font-size: 8pt; background: #f4f6f8; }
+pre { border: 1px solid #dde3e9; padding: 6px; white-space: pre-wrap; }
+blockquote { border-left: 3px solid #1261a0; margin: 6px 0; padding: 2px 8px; background: #f5fafd; }
+ul, ol { margin: 4px 0 8px 18px; }
+li { margin-bottom: 2px; }
+hr { border: 0; border-top: 1px solid #cbd5e1; margin: 14px 0; }
+</style></head><body><h1 id="partager-et-tester-epi-aggregator-20">Partager et tester Epi Aggregator 2.0</h1>
+<p>Ce guide répond à deux questions : <strong>comment tester la version corrigée maintenant</strong> et <strong>comment la transmettre</strong> à des collègues ou au GIS Centre.</p>
+<table>
+<thead>
+<tr>
+<th>Je veux…</th>
+<th>Chemin</th>
+<th>Temps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Voir le widget fonctionner sans rien installer</td>
+<td>§ 1 — aperçu navigateur</td>
+<td>2 min</td>
+</tr>
+<tr>
+<td>Vérifier que le moteur calcule juste</td>
+<td>§ 2 — contrôles automatiques</td>
+<td>2 min</td>
+</tr>
+<tr>
+<td>Tester dans Experience Builder</td>
+<td>§ 3 — installation complète</td>
+<td>2 à 4 h</td>
+</tr>
+<tr>
+<td>Envoyer la version à un collègue</td>
+<td>§ 4 — archive ZIP ou GitHub</td>
+<td>5 min</td>
+</tr>
+<tr>
+<td>Transmettre au GIS Centre pour décision</td>
+<td>§ 5 — paquet de décision</td>
+<td>10 min</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-voir-le-widget-fonctionner-sans-installer-experience-builder">1. Voir le widget fonctionner sans installer Experience Builder</h2>
+<p>Le fichier <code>tools/preview/index.html</code> rejoue l'interface du widget avec <strong>le moteur et les styles réels du dépôt</strong> (<code>aggregation.ts</code>, <code>comparison.ts</code>, <code>spatialAggregation.ts</code>, <code>runtime/style.css</code>).</p>
+<h3 id="11-le-plus-rapide-double-clic">1.1 Le plus rapide : double-clic</h3>
+<p>Ouvrir <code>tools/preview/index.html</code> dans un navigateur ne suffit pas : le navigateur bloque la lecture du CSV local (<code>fetch</code> sur <code>file://</code>). Utiliser l'une des deux méthodes ci-dessous.</p>
+<h3 id="12-serveur-local-en-une-commande">1.2 Serveur local en une commande</h3>
+<p>Depuis la racine du dépôt :</p>
+<pre><code class="language-powershell">python -m http.server 8000
+</code></pre>
+<p>Puis ouvrir :</p>
+<pre><code class="language-text">http://localhost:8000/tools/preview/index.html
+</code></pre>
+<h3 id="13-emporte-avec-la-version-hebergee">1.3 Emporté avec la version hébergée</h3>
+<p>Si le dossier est déjà exposé par un serveur web, l'URL est :</p>
+<pre><code class="language-text">https://&lt;votre-serveur&gt;/tools/preview/index.html
+</code></pre>
+<h3 id="ce-qui-est-testable-dans-lapercu">Ce qui est testable dans l'aperçu</h3>
+<table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Testable</th>
+<th>Remarque</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Semaine ISO, EPI-week, mois, trimestre, année</td>
+<td>Oui</td>
+<td>Moteur réel</td>
+</tr>
+<tr>
+<td>Conventions jour/mois, mois/jour, automatique</td>
+<td>Oui</td>
+<td>Moteur réel</td>
+</tr>
+<tr>
+<td>Comptage, somme, moyenne, médiane, max, valeurs distinctes</td>
+<td>Oui</td>
+<td>Moteur réel</td>
+</tr>
+<tr>
+<td>Champ texte semaine (EpiWeek) et son avertissement</td>
+<td>Oui</td>
+<td>Sélectionner <code>week_label (Texte / EpiWeek)</code></td>
+</tr>
+<tr>
+<td>Timeline, lecture, vitesses, cumulé/brut, repli des périodes</td>
+<td>Oui</td>
+<td>Mêmes classes CSS que le widget</td>
+</tr>
+<tr>
+<td>Indicateurs : total, pic, périodes, période active ou cumul</td>
+<td>Oui</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Comparaison inter-annuelle (delta, %)</td>
+<td>Oui</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Agrégats zone x période et export CSV par zone</td>
+<td>Oui</td>
+<td>Sélectionner <code>adm1_name</code></td>
+</tr>
+<tr>
+<td>Mon propre fichier CSV</td>
+<td>Oui</td>
+<td>Choisir « Fichier CSV à moi… »</td>
+</tr>
+<tr>
+<td>Carte, couches ArcGIS, requête serveur, filtre <code>definitionExpression</code></td>
+<td><strong>Non</strong></td>
+<td>Nécessite Experience Builder</td>
+</tr>
+<tr>
+<td>Rendu des composants <code>jimu-ui</code>, comportement du panneau Contenu</td>
+<td><strong>Non</strong></td>
+<td>Nécessite Experience Builder</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Ne pas confondre.</strong> L'aperçu valide le <em>calcul</em> et la logique de timeline, pas l'intégration. Les tests T1 à T15 du guide de transfert restent la référence pour la décision.</p>
+</blockquote>
+<hr />
+<h2 id="2-verifier-que-le-moteur-calcule-juste">2. Vérifier que le moteur calcule juste</h2>
+<p>Dans la même page, la section <strong>« Contrôles automatiques du moteur »</strong> exécute 17 contrôles : semaines ISO (dont la semaine 53), conventions de dates, dates impossibles, séries Excel, libellés <code>2024-W02</code> / <code>Week 04-2025</code> / <code>S01_2026</code>, comptage, somme, médiane, périodes manquantes à zéro, dates illisibles, comparaison inter-annuelle et agrégats par zone.</p>
+<p>Pour les relancer après une modification du code, reconstruire le moteur puis recharger la page :</p>
+<pre><code class="language-powershell">npx esbuild widgets/epi-aggregator/src/runtime/aggregation.ts widgets/epi-aggregator/src/runtime/comparison.ts widgets/epi-aggregator/src/runtime/spatialAggregation.ts --bundle --format=iife --global-name=EpiMoteur --outfile=tools/preview/moteur.js
+</code></pre>
+<hr />
+<h2 id="3-tester-dans-experience-builder">3. Tester dans Experience Builder</h2>
+<h3 id="31-prerequis">3.1 Prérequis</h3>
+<ul>
+<li>ArcGIS Experience Builder <strong>Developer Edition 1.15</strong> décompressé ;</li>
+<li><strong>Node.js 20 LTS</strong> ;</li>
+<li>une organisation ArcGIS Online ou Enterprise et un compte de test ;</li>
+<li>environ 3 Go d'espace disque et une bonne connexion (l'installation des dépendances est longue).</li>
+</ul>
+<h3 id="32-installation">3.2 Installation</h3>
+<pre><code class="language-powershell">git clone https://github.com/pratisig/Exb_EPI_Widgets.git
+cd Exb_EPI_Widgets
+git checkout arena/01a0aaf8-exb-epi-widgets
+git log -1 --oneline     # noter le commit : c'est l'artefact testé
+</code></pre>
+<p>Copier le widget :</p>
+<pre><code class="language-powershell">Copy-Item `
+  &quot;.\widgets\epi-aggregator&quot; `
+  &quot;C:\Chemin\ArcGISExperienceBuilder\client\your-extensions\widgets\epi-aggregator&quot; `
+  -Recurse -Force
+</code></pre>
+<p>Ou, sans Git, décompresser <code>deliverables/epi-aggregator-2.0.0.zip</code> (le dossier <code>epi-aggregator</code> est à la racine de l'archive) au même endroit.</p>
+<p>Puis lancer les deux services (deux fenêtres, à laisser ouvertes) :</p>
+<pre><code class="language-powershell">cd C:\Chemin\ArcGISExperienceBuilder\server ; npm ci ; npm run start
+cd C:\Chemin\ArcGISExperienceBuilder\client ; npm ci ; npm run start
+</code></pre>
+<p>Sous Windows, le lanceur fourni fait tout cela, y compris la copie du widget :</p>
+<pre><code class="language-powershell">.\tools\Start-ExperienceBuilder.ps1 `
+  -ExperienceBuilderPath &quot;C:\Chemin\ArcGISExperienceBuilder&quot; `
+  -InstallDependencies -CopyWidget
+</code></pre>
+<p>Ouvrir ensuite <code>https://localhost:3001/</code>.</p>
+<h3 id="33-donnees-de-test">3.3 Données de test</h3>
+<p>Le fichier <code>deliverables/donnees_test/epi_line_list_test.csv</code> (226 lignes, 2023-2025, 3 zones) est prêt à être publié comme table hébergée ArcGIS :</p>
+<ol>
+<li>ArcGIS Online → <strong>Contenu</strong> → <strong>Nouvel élément</strong> → <em>Importer un fichier CSV</em> ;</li>
+<li>publier comme <strong>table hébergée</strong>, puis <strong>Publier</strong> en Feature Layer si la carte doit être filtrée ;</li>
+<li>vérifier que <code>onset_date</code> est bien de type <strong>Date</strong> et que <code>week_label</code> reste en <strong>texte</strong> : c'est ce qui permet de reproduire le cas E2.</li>
+</ol>
+<p>Le fichier contient volontairement : une semaine manquante (T6), une date impossible <code>31/02/2024</code> et une date illisible (T15b), une date ambiguë <code>03/04/2024</code> (T15), et 30 lignes avec libellé de semaine texte (T14).</p>
+<h3 id="34-premier-montage">3.4 Premier montage</h3>
+<ol>
+<li>Créer une expérience, ajouter <strong>Epi Aggregator</strong>.</li>
+<li>Panneau <strong>Contenu</strong> → sélectionner la table de test.</li>
+<li>Pour chaque source : <strong>Champ date ou semaine</strong>, statistique, agrégation, convention, mode d'affichage.</li>
+<li>Pour le test du champ texte : activer <em>Afficher aussi les champs texte (semaines EpiWeek…)</em> puis choisir <code>week_label</code> — l'avertissement de filtrage doit apparaître.</li>
+<li>Enregistrer, puis dérouler les scénarios du <code>GUIDE_TRANSFERT_TEST_GIS_CENTRE.md</code>.</li>
+</ol>
+<h3 id="35-pieges-frequents">3.5 Pièges fréquents</h3>
+<table>
+<thead>
+<tr>
+<th>Symptôme</th>
+<th>Cause probable</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le widget n'apparaît pas dans le panneau</td>
+<td>Copie au mauvais endroit</td>
+<td>Le chemin doit finir par <code>client\your-extensions\widgets\epi-aggregator</code></td>
+</tr>
+<tr>
+<td>Erreur de compilation au démarrage</td>
+<td>Mauvaise version de Node</td>
+<td><code>nvm use 20</code> avant <code>npm ci</code></td>
+</tr>
+<tr>
+<td><code>npm ci</code> échoue</td>
+<td>Lockfile absent ou version ExB différente</td>
+<td>Utiliser la même version majeure d'ExB que celle du dépôt téléchargé</td>
+</tr>
+<tr>
+<td>Page inaccessible</td>
+<td>Un seul des deux services lancé</td>
+<td><code>server</code> <strong>et</strong> <code>client</code> doivent tourner</td>
+</tr>
+<tr>
+<td>Erreur d'authentification au portail</td>
+<td>Client ID OAuth ou URI de redirection</td>
+<td>URI : <code>https://localhost:3001/jimu-core/oauth-callback.html</code></td>
+</tr>
+<tr>
+<td>Aucun champ Date détecté</td>
+<td><code>onset_date</code> importé en texte</td>
+<td>Republier la colonne en <code>esriFieldTypeDate</code></td>
+</tr>
+<tr>
+<td>Le filtre ne touche pas la carte</td>
+<td>Source ou champ différents</td>
+<td>Même source et même champ date dans la carte et le widget</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-envoyer-la-version-a-un-collegue">4. Envoyer la version à un collègue</h2>
+<h3 id="41-archive-zip-recommande-pour-un-test-rapide">4.1 Archive ZIP (recommandé pour un test rapide)</h3>
+<p>Le fichier <code>deliverables/epi-aggregator-2.0.0.zip</code> contient uniquement le widget, prêt à décompresser dans <code>client\your-extensions\widgets</code>.</p>
+<p>Envoyer avec l'empreinte pour vérifier l'intégrité :</p>
+<pre><code class="language-text">epi-aggregator-2.0.0.zip
+epi-aggregator-2.0.0.zip.sha256
+</code></pre>
+<p>Vérification côté destinataire (PowerShell) :</p>
+<pre><code class="language-powershell">Get-FileHash .\epi-aggregator-2.0.0.zip -Algorithm SHA256
+</code></pre>
+<p>La valeur doit correspondre à celle du fichier <code>.sha256</code>.</p>
+<h3 id="42-github-recommande-pour-la-tracabilite">4.2 GitHub (recommandé pour la traçabilité)</h3>
+<table>
+<thead>
+<tr>
+<th>Moyen</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PR #2</strong> (<code>arena/01a0aaf8-exb-epi-widgets</code> → <code>main</code>)</td>
+<td>Revue du code, discussion, fusion après validation</td>
+</tr>
+<tr>
+<td><strong>Branche de test</strong></td>
+<td><code>git checkout arena/01a0aaf8-exb-epi-widgets</code> pour tester la version corrigée</td>
+</tr>
+<tr>
+<td><strong>Archive du dépôt</strong></td>
+<td>GitHub → <em>Code</em> → <em>Download ZIP</em> (version d'une branche donnée)</td>
+</tr>
+<tr>
+<td><strong>Release avec pièce jointe</strong></td>
+<td>Fige l'artefact et le rend téléchargeable sans Git : voir § 4.3</td>
+</tr>
+</tbody>
+</table>
+<p>Pour figer la version testée, créer une release :</p>
+<pre><code class="language-powershell">gh release create v2.0.0-rc1 `
+  deliverables/epi-aggregator-2.0.0.zip `
+  deliverables/DOSSIER_PROPOSITION_GIS_CENTRE.pdf `
+  --title &quot;Epi Aggregator 2.0.0-rc1 — version de test GIS Centre&quot; `
+  --notes &quot;Version de test : correctifs E1 à E3. Tester avec le guide de transfert, tests T1 à T15.&quot;
+</code></pre>
+<h3 id="43-ce-quil-faut-joindre-a-un-envoi">4.3 Ce qu'il faut joindre à un envoi</h3>
+<table>
+<thead>
+<tr>
+<th>Public</th>
+<th>Documents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Testeur technique</td>
+<td><code>epi-aggregator-2.0.0.zip</code>, <code>GUIDE_TRANSFERT_TEST_GIS_CENTRE.pdf</code>, <code>donnees_test/epi_line_list_test.csv</code></td>
+</tr>
+<tr>
+<td>Utilisateur métier</td>
+<td><code>MANUEL_UTILISATION.pdf</code></td>
+</tr>
+<tr>
+<td>Décideur / comité</td>
+<td><code>DOSSIER_PROPOSITION_GIS_CENTRE.pdf</code> + <code>DESCRIPTION_OUTIL_EPI_AGGREGATOR.pdf</code></td>
+</tr>
+</tbody>
+</table>
+<p>Tous ces fichiers sont dans <code>deliverables/</code> (voir <code>deliverables/README.md</code>). <strong>Ne jamais joindre de données nominatives ni de secrets OAuth</strong>, et anonymiser les captures d'écran.</p>
+<hr />
+<h2 id="5-transmettre-au-gis-centre-pour-decision">5. Transmettre au GIS Centre pour décision</h2>
+<ol>
+<li>Vérifier que la <strong>PR #2</strong> est fusionnée dans <code>main</code> (ou indiquer la branche de test exacte).</li>
+<li>Envoyer le paquet du § 4.3 avec une date limite de retour.</li>
+<li>Demander la confirmation de la version Experience Builder (écart E4) et l'arbitrage des limites résiduelles (§ 6.2 du dossier).</li>
+<li>Récupérer le <strong>formulaire de décision</strong> du § 14 du dossier, complété et signé.</li>
+<li>À l'issue du pilote : taguer la version validée (<code>gh release create v2.0.1 --target main</code>) pour que les prochains utilisateurs disposent d'un artefact figé.</li>
+</ol>
+<hr />
+<h2 id="6-rappel-des-limites-de-lapercu">6. Rappel des limites de l'aperçu</h2>
+<ul>
+<li>L'aperçu ne teste pas ArcGIS : ni la carte, ni la requête serveur, ni les couches virtuelles, ni le panneau Contenu d'Experience Builder.</li>
+<li>Il utilise le même moteur de calcul et les mêmes styles, mais pas les composants <code>jimu-ui</code> : l'apparence peut différer légèrement du rendu final.</li>
+<li>Le chargement des gros volumes n'est pas représentatif : la performance doit être mesurée dans Experience Builder (test T12).</li>
+</ul></body></html>

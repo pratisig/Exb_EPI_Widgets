@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang='fr'><head><meta charset='utf-8'><title>Guide de transfert et de test — Epi Aggregator 2.0</title><style>
+@page { size: A4; margin: 1.6cm 1.4cm; }
+body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; color: #1f2933; line-height: 1.45; }
+h1 { font-size: 18pt; color: #0b4f83; border-bottom: 2px solid #0b4f83; padding-bottom: 6px; }
+h2 { font-size: 13pt; color: #1261a0; margin-top: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; }
+h3 { font-size: 11pt; color: #1d4f6e; margin-top: 12px; }
+h4 { font-size: 10pt; color: #1d4f6e; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; font-size: 8pt; }
+th, td { border: 1px solid #b8c4d0; padding: 4px 5px; text-align: left; vertical-align: top; word-wrap: break-word; }
+th { background: #eaf4fa; color: #0b4f83; }
+code, pre { font-family: Courier, monospace; font-size: 8pt; background: #f4f6f8; }
+pre { border: 1px solid #dde3e9; padding: 6px; white-space: pre-wrap; }
+blockquote { border-left: 3px solid #1261a0; margin: 6px 0; padding: 2px 8px; background: #f5fafd; }
+ul, ol { margin: 4px 0 8px 18px; }
+li { margin-bottom: 2px; }
+hr { border: 0; border-top: 1px solid #cbd5e1; margin: 14px 0; }
+</style></head><body><h1 id="guide-de-transfert-et-de-test-epi-aggregator-20">Guide de transfert et de test — Epi Aggregator 2.0</h1>
+<p><strong>Destinataires :</strong> GIS Centre, équipes GIS et surveillance épidémiologique</p>
+<p><strong>Version de test :</strong> Epi Aggregator 2.0.0</p>
+<p><strong>Référence de test :</strong> branche <code>arena/01a0aaf8-exb-epi-widgets</code> — correctifs de préparation au pilote (écarts E1 à E3 du dossier de proposition), à fusionner dans <code>main</code> avant la campagne</p>
+<p><strong>Référence historique :</strong> <code>main</code> au commit <code>907b88d</code> (« Merge Epi Aggregator 2.0 », 3 septembre 2026)</p>
+<blockquote>
+<p><strong>Vérifier l'artefact testé.</strong> Noter le résultat de <code>git log -1 --oneline</code> dans la fiche de retour (§ 9). La branche de test est référencée par son nom et non par un commit figé : c'est le commit constaté le jour du test qui fait foi.</p>
+</blockquote>
+<p>Ce guide détaille la manipulation. Le <strong>dossier de proposition</strong> <code>DOSSIER_PROPOSITION_GIS_CENTRE.md</code> porte la grille de décision T1–T15, les critères d'acceptation formels, le planning, les rôles et le formulaire de décision. Les deux documents se lisent ensemble : chaque scénario de ce guide est rattaché à un test noté de la grille.</p>
+<h2 id="1-objet-du-pilote">1. Objet du pilote</h2>
+<p>Epi Aggregator 2.0 est un widget personnalisé ArcGIS Experience Builder pour analyser des line-lists épidémiologiques dans le temps, synchroniser plusieurs sources et préparer des agrégations par zone.</p>
+<p>Le pilote doit vérifier :</p>
+<ul>
+<li>les formats de dates utilisés sur le terrain ;</li>
+<li>les champs Date natifs et les champs texte de semaine (EpiWeek) ;</li>
+<li>les semaines ISO et les semaines épidémiologiques relatives ;</li>
+<li>les agrégations mois/trimestre/année ;</li>
+<li>la comparaison de plusieurs années ;</li>
+<li>la synchronisation de plusieurs sources ;</li>
+<li>le comportement des timelines avec cartes, indicateurs, graphiques et tables ;</li>
+<li>le regroupement par champ administratif et la couche virtuelle cartographique ;</li>
+<li>les performances avec une line-list réelle anonymisée.</li>
+</ul>
+<h2 id="2-pre-requis-techniques">2. Pré-requis techniques</h2>
+<ul>
+<li>ArcGIS Experience Builder Developer Edition <strong>1.15</strong> ;</li>
+<li>une organisation ArcGIS Online ou ArcGIS Enterprise ;</li>
+<li><strong>Node.js 20 LTS</strong> pour Experience Builder 1.15 ;</li>
+<li>Git, ou une archive du dépôt ;</li>
+<li>un compte pouvant lire les Feature Layers et tables de test ;</li>
+<li>une carte Experience Builder contenant au moins une couche de test ;</li>
+<li>pour ExB 1.15, utiliser <code>npm ci</code> (et non <code>pnpm ci</code>).</li>
+</ul>
+<blockquote>
+<p><strong>Version Experience Builder.</strong> Le manifeste du widget déclare <code>exbVersion: "1.14.0"</code> alors que ce guide cible ExB 1.15. Si le GIS Centre constate une incompatibilité de compilation, le signaler : c'est le point à arbitrer avant la campagne (écart E4 du dossier de proposition).</p>
+</blockquote>
+<h2 id="3-installation-locale">3. Installation locale</h2>
+<p>Récupérer la référence de test :</p>
+<pre><code class="language-powershell">git clone https://github.com/pratisig/Exb_EPI_Widgets.git
+cd Exb_EPI_Widgets
+git checkout arena/01a0aaf8-exb-epi-widgets
+git log -1 --oneline
+</code></pre>
+<pre><code class="language-powershell">Copy-Item `
+  &quot;.\widgets\epi-aggregator&quot; `
+  &quot;C:\Chemin\ArcGISExperienceBuilder\client\your-extensions\widgets\epi-aggregator&quot; `
+  -Recurse -Force
+</code></pre>
+<p>Remplacer <code>C:\Chemin\ArcGISExperienceBuilder</code> par le chemin local réel.</p>
+<h3 id="voie-rapide-windows">Voie rapide (Windows)</h3>
+<p>Le script <code>tools\Start-ExperienceBuilder.ps1</code> active Node 20, installe les dépendances si nécessaire, copie le widget et ouvre les deux fenêtres de service :</p>
+<pre><code class="language-powershell">.\tools\Start-ExperienceBuilder.ps1 `
+  -ExperienceBuilderPath &quot;C:\Chemin\ArcGISExperienceBuilder&quot; `
+  -InstallDependencies -CopyWidget
+</code></pre>
+<p>Conserver les deux fenêtres PowerShell ouvertes pendant toute la session.</p>
+<h3 id="controle-dintegrite-de-la-copie">Contrôle d'intégrité de la copie</h3>
+<p>Le widget doit contenir :</p>
+<pre><code class="language-text">icon.svg
+manifest.json
+config.json
+src\config.ts
+src\runtime\widget.tsx
+src\runtime\aggregation.ts
+src\runtime\comparison.ts
+src\runtime\spatialAggregation.ts
+src\runtime\virtualLayer.ts
+src\runtime\style.css
+src\setting\setting.tsx
+src\setting\style.css
+</code></pre>
+<h2 id="4-demarrage-dexperience-builder">4. Démarrage d'Experience Builder</h2>
+<p>Dans le dossier <code>server</code> : <code>npm ci</code> puis <code>npm run start</code>.</p>
+<p>Dans le dossier <code>client</code> : <code>npm ci</code> puis <code>npm run start</code>.</p>
+<p>Ouvrir :</p>
+<pre><code class="language-text">https://localhost:3001/
+</code></pre>
+<p>Pour une organisation Enterprise, renseigner :</p>
+<pre><code class="language-text">Portal URL : https://geo.geomsf.org/portal
+</code></pre>
+<p>Le Client ID OAuth doit être créé dans le même portail. L'URI de redirection doit être :</p>
+<pre><code class="language-text">https://localhost:3001/jimu-core/oauth-callback.html
+</code></pre>
+<p>Si le portail est derrière CloudFront ou un reverse proxy, l'administrateur doit autoriser et transmettre les paramètres de :</p>
+<pre><code class="language-text">/portal/sharing/rest/oauth2/authorize
+/portal/sharing/rest/oauth2/token
+</code></pre>
+<h2 id="5-donnees-de-test-minimales">5. Données de test minimales</h2>
+<p>Créer une couche ou table de test anonymisée contenant au minimum :</p>
+<pre><code class="language-text">case_id       : texte ou identifiant
+onset_date    : Date ou texte EpiWeek
+week_label    : texte (facultatif, pour tester le champ semaine)
+adm1_name     : texte
+status        : texte
+cases         : numérique
+deaths        : numérique
+</code></pre>
+<p>Éviter les données nominatives ou les coordonnées individuelles dans le pilote initial.</p>
+<p>Jeu de test recommandé :</p>
+<table>
+<thead>
+<tr>
+<th>case_id</th>
+<th>onset_date</th>
+<th>week_label</th>
+<th>adm1_name</th>
+<th>status</th>
+<th style="text-align: right;">cases</th>
+<th style="text-align: right;">deaths</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2024-01-03</td>
+<td>2024-W01</td>
+<td>Dakar</td>
+<td>Confirmed</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2024-01-05</td>
+<td>2024-W01</td>
+<td>Dakar</td>
+<td>Probable</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2024-01-12</td>
+<td>2024-W02</td>
+<td>Thiès</td>
+<td>Confirmed</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2025-01-20</td>
+<td>Week 04-2025</td>
+<td>Dakar</td>
+<td>Confirmed</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>5</td>
+<td>2025-01-24</td>
+<td>2025-W04</td>
+<td>Thiès</td>
+<td>Suspected</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>Pour tester les années, utiliser <strong>au moins trois années</strong> et plusieurs périodes par année. Supprimer volontairement une semaine au milieu de la série pour le scénario F.</p>
+<h2 id="6-configuration-du-widget">6. Configuration du widget</h2>
+<ol>
+<li>Ajouter Epi Aggregator à une expérience.</li>
+<li>Ouvrir le panneau <strong>Contenu</strong>.</li>
+<li>Sélectionner une ou plusieurs sources.</li>
+<li>Pour chaque source, choisir le <strong>champ date ou semaine</strong> détecté.
+   - Pour un champ <strong>Date</strong> natif, rien de plus : le filtrage de la source est disponible.
+   - Pour un champ <strong>texte</strong>, activer <strong>Afficher aussi les champs texte (semaines EpiWeek…)</strong> puis sélectionner le champ. Le widget signale alors que le filtrage est désactivé.</li>
+<li>Choisir une statistique :
+   - Count ;
+   - Sum ;
+   - Mean ;
+   - Median ;
+   - Min ;
+   - Max ;
+   - First ;
+   - Last ;
+   - Distinct.</li>
+<li>Choisir le champ numérique, date ou texte selon la statistique.</li>
+<li>Choisir l’agrégation temporelle.</li>
+<li>Choisir le mode de filtre : période unique, progressif/cumulatif ou toutes les données.</li>
+<li>Choisir l’affichage : <strong>Timeline uniquement</strong> ou <strong>Timeline et détails des sources</strong>.</li>
+</ol>
+<p>Pour le regroupement spatial, choisir :</p>
+<pre><code class="language-text">Champ de regroupement spatial : adm1_name
+</code></pre>
+<p>Pour une couche frontière séparée, utiliser :</p>
+<pre><code class="language-text">Couche frontière / géométrie
+</code></pre>
+<p>puis sélectionner le champ administratif correspondant.</p>
+<h2 id="7-scenarios-de-test-fonctionnels">7. Scénarios de test fonctionnels</h2>
+<p>Chaque scénario est rattaché au test correspondant de la grille T1–T15 du dossier de proposition.</p>
+<h3 id="scenario-a-installation-et-compilation-t1">Scénario A — Installation et compilation (T1)</h3>
+<p>Copier le widget, lancer <code>npm ci</code> puis <code>npm run start</code> dans <code>server</code> et <code>client</code>.</p>
+<p><strong>Résultat attendu :</strong> le widget apparaît dans le panneau des widgets, sans erreur bloquante de compilation ni erreur dans la console du navigateur.</p>
+<h3 id="scenario-b-champ-date-natif-et-semaine-iso-t3-t4">Scénario B — Champ Date natif et semaine ISO (T3, T4)</h3>
+<ul>
+<li>Agrégation : semaine ISO ;</li>
+<li>une source avec <code>onset_date</code> de type <code>esriFieldTypeDate</code> ;</li>
+<li>statistique : Count ;</li>
+<li>inclure une année comportant une semaine 53.</li>
+</ul>
+<p><strong>Résultat attendu :</strong> le champ est détecté automatiquement, les semaines sont exactes, les bornes vont du lundi au dimanche et la semaine 53 n'est pas tronquée.</p>
+<h3 id="scenario-c-champ-texte-semaine-epiweek-t14-nouveaute">Scénario C — Champ texte semaine EpiWeek (T14) — <em>nouveauté</em></h3>
+<ul>
+<li>Activer <strong>Afficher aussi les champs texte</strong> ;</li>
+<li>sélectionner <code>week_label</code> (valeurs <code>2024-W01</code>, <code>Week 04-2025</code>, <code>2025-W04</code>) ;</li>
+<li>statistique : Count.</li>
+</ul>
+<p><strong>Résultat attendu :</strong></p>
+<ul>
+<li>les libellés sont normalisés en semaine ISO et agrégés correctement ;</li>
+<li>le widget affiche l'avertissement « Champ texte semaine : … le filtrage … nécessite un champ Date natif » ;</li>
+<li>aucune requête temporelle n'est envoyée à la source (vérifier dans les requêtes réseau) ;</li>
+<li>l'avertissement apparaît aussi dans le panneau Contenu.</li>
+</ul>
+<h3 id="scenario-d-timeline-liee-et-filtres-t5">Scénario D — Timeline liée et filtres (T5)</h3>
+<ul>
+<li>Agrégation : semaine ISO, une source, statistique Count ;</li>
+<li>cliquer plusieurs périodes ;</li>
+<li>tester successivement les trois modes de filtre.</li>
+</ul>
+<p><strong>Résultat attendu :</strong> la période active et le filtre changent sans recharger l'expérience. En mode progressif, toutes les périodes depuis la première sont conservées ; en mode période unique, seule la période active ; en mode toutes les données, aucune restriction.</p>
+<h3 id="scenario-e-timeline-de-source-cumule-et-repli-t5-nouveaute">Scénario E — Timeline de source, cumulé et repli (T5) — <em>nouveauté</em></h3>
+<ul>
+<li>Afficher le widget en <strong>Timeline et détails des sources</strong>, puis en <strong>Timeline uniquement</strong> ;</li>
+<li>avancer avec les boutons et le curseur ;</li>
+<li>activer <strong>Cumulé</strong> puis <strong>Brut</strong> ;</li>
+<li>cliquer sur <strong>Masquer les périodes</strong>, puis <strong>Afficher les périodes</strong> ;</li>
+<li>utiliser <strong>Lire/Arrêter</strong> et les trois vitesses.</li>
+</ul>
+<p><strong>Résultat attendu :</strong></p>
+<ul>
+<li>les valeurs affichées sur les boutons passent de la valeur de période au cumulé ;</li>
+<li>le bouton Cumulé est désactivé pour les statistiques non numériques (First, Last, Distinct) ;</li>
+<li>le repli masque les boutons sans désactiver le curseur ni la période active ;</li>
+<li>les douze premières périodes affichent la liste dépliée, au-delà la liste se replie automatiquement ;</li>
+<li>avec une seule source, le mode compact n'affiche que la timeline liée ; avec deux sources, chaque source garde sa timeline compacte.</li>
+</ul>
+<h3 id="scenario-f-periodes-manquantes-t6">Scénario F — Périodes manquantes (T6)</h3>
+<p>Supprimer les lignes d'une semaine au milieu de la série et activer :</p>
+<pre><code class="language-text">Créer des périodes à zéro
+</code></pre>
+<p><strong>Résultat attendu :</strong> la semaine absente apparaît avec une valeur zéro, sans être confondue avec une absence de notification.</p>
+<h3 id="scenario-g-comparaison-des-annees-t10">Scénario G — Comparaison des années (T10)</h3>
+<ul>
+<li>données 2023, 2024 et 2025 ;</li>
+<li>mode : <strong>Comparer les années</strong> ;</li>
+<li>années : <code>2023, 2024, 2025</code> ;</li>
+<li>année de référence : <code>2024</code>.</li>
+</ul>
+<p><strong>Résultat attendu :</strong> les périodes comparables sont alignées, les colonnes delta et % sont cohérentes et les valeurs absentes sont affichées <code>—</code>.</p>
+<h3 id="scenario-h-plusieurs-sources-et-timeline-liee-t9">Scénario H — Plusieurs sources et timeline liée (T9)</h3>
+<p>Ajouter une source Cas (Count) et une source Décès (Sum sur <code>deaths</code>) avec la même clé temporelle.</p>
+<p><strong>Résultat attendu :</strong> la timeline liée filtre les deux sources ensemble ; les totaux, pics et périodes ne se mélangent pas.</p>
+<h3 id="scenario-i-regroupement-administratif-et-export-par-zone-t7">Scénario I — Regroupement administratif et export par zone (T7)</h3>
+<p>Configurer :</p>
+<pre><code class="language-text">Champ de regroupement spatial : adm1_name
+</code></pre>
+<p>Vérifier dans le CSV la présence de :</p>
+<pre><code class="language-text">boundary,period,label,count,value,start,end
+</code></pre>
+<p><strong>Résultat attendu :</strong> une ligne par zone et par période, cohérente avec les valeurs du widget ; le compteur d'agrégats zone × période est affiché dans la carte de la source.</p>
+<h3 id="scenario-j-carte-symbologie-et-couche-virtuelle-t8">Scénario J — Carte, symbologie et couche virtuelle (T8)</h3>
+<p>Configurer la symbologie dans la carte, pas dans le widget :</p>
+<ul>
+<li>cercles proportionnels pour les points ;</li>
+<li>couleurs graduées pour les polygones ;</li>
+<li>variables visuelles existantes ;</li>
+<li>échelle dynamique ou fixe dans le widget.</li>
+</ul>
+<p>Sélectionner une couche frontière, puis déplacer la timeline.</p>
+<p><strong>Résultat attendu :</strong></p>
+<ul>
+<li>le filtre temporel et les variables visuelles réagissent à la période active ;</li>
+<li>une couche temporaire par période est produite avec <code>boundary</code>, <code>period</code>, <code>value</code>, <code>count</code> ;</li>
+<li>la palette et le renderer d'origine sont conservés ;</li>
+<li>la couche temporaire est retirée au changement de période et à la fermeture.</li>
+</ul>
+<h3 id="scenario-k-performance-t12">Scénario K — Performance (T12)</h3>
+<p>Tester avec une line-list anonymisée de taille représentative (par exemple 10 000, 50 000 puis 100 000 enregistrements).</p>
+<p><strong>Résultat attendu :</strong> temps d'agrégation, de filtre et d'animation mesurés et consignés ; comportement documenté au-delà de 10 000 enregistrements par requête.</p>
+<h3 id="scenario-l-integrite-des-donnees-sources-t2">Scénario L — Intégrité des données sources (T2)</h3>
+<p>Relever avant et après les tests le nombre d'enregistrements, le <code>lastEditDate</code> et un échantillon de valeurs.</p>
+<p><strong>Résultat attendu :</strong> aucune modification de la line-list ni de la couche frontière.</p>
+<h2 id="8-criteres-dacceptation-gis-centre">8. Critères d'acceptation GIS Centre</h2>
+<p>Le pilote peut être accepté si :</p>
+<ul>
+<li>une source Date native est détectée automatiquement ;</li>
+<li>un champ texte de semaine (EpiWeek) est normalisé et agrégé ;</li>
+<li>la limite de filtrage d'un champ texte est signalée à l'utilisateur ;</li>
+<li>plusieurs années sont affichées ;</li>
+<li>une comparaison annuelle est lisible ;</li>
+<li>les périodes manquantes peuvent être représentées par zéro ;</li>
+<li>deux sources partagent la timeline liée et restent pilotables individuellement ;</li>
+<li>les trois modes de filtre fonctionnent ;</li>
+<li>l'affichage brut/cumulé et le repli des périodes fonctionnent ;</li>
+<li>l'export CSV est exploitable, globalement et par zone ;</li>
+<li>une source peut être regroupée par zone et une couche frontière peut être sélectionnée ;</li>
+<li>la couche virtuelle ne modifie ni le renderer ni les données sources ;</li>
+<li>aucune donnée source n'est modifiée ;</li>
+<li>une line-list anonymisée de taille représentative reste utilisable.</li>
+</ul>
+<h2 id="9-fiche-de-retour-dexperience">9. Fiche de retour d'expérience</h2>
+<p>Pour chaque test, documenter :</p>
+<pre><code class="language-text">Test (T1…T15) :
+Scénario (A…L) :
+Commit testé (git log -1 --oneline) :
+Pays / mission :
+Utilisateur testeur :
+Version Experience Builder :
+Version Portal :
+Taille de la source :
+Type de source :
+Champ temporel et type (Date / texte) :
+Champ de regroupement :
+Période choisie :
+Statistique :
+Navigateur :
+Résultat : conforme / non conforme / non testé
+Erreur console :
+Contournement disponible :
+Capture écran :
+Priorité : critique / haute / moyenne / basse
+</code></pre>
+<p>Ne jamais joindre de données nominatives ou de secrets OAuth à un ticket.</p>
+<h2 id="10-limites-connues-du-pilote">10. Limites connues du pilote</h2>
+<ul>
+<li>Le calcul est principalement côté navigateur ; les gros volumes doivent être mesurés avant déploiement.</li>
+<li>Un champ temporel de type texte ne peut pas être filtré par le service : l'agrégation reste disponible, le filtre non.</li>
+<li>Le regroupement spatial nécessite des valeurs Boundary cohérentes entre la line-list et la couche frontière.</li>
+<li>La carte doit conserver son renderer ; le widget agit sur le filtre et les variables visuelles déjà configurées.</li>
+<li>Les cartes, graphiques et indicateurs doivent utiliser les sources configurées ou une vue de données compatible.</li>
+<li>Les taux épidémiologiques ne sont pas déduits automatiquement : leurs définitions et dénominateurs doivent être préparés et validés par la surveillance.</li>
+<li>Pour une utilisation Enterprise derrière un proxy, la configuration OAuth et la transmission des query strings doivent être validées par l'administrateur Portal.</li>
+<li>La déclaration <code>exbVersion</code> du manifeste (1.14.0) doit être confirmée par rapport à la version réellement déployée.</li>
+</ul>
+<h2 id="11-support-et-livraison-du-retour">11. Support et livraison du retour</h2>
+<p>Pour chaque problème, transmettre :</p>
+<ol>
+<li>la référence testée (<code>git log -1 --oneline</code>) ;</li>
+<li>la version Experience Builder ;</li>
+<li>le scénario de test et le test T correspondant ;</li>
+<li>la structure des champs sans données sensibles ;</li>
+<li>l'erreur de la console ;</li>
+<li>une capture d'écran anonymisée ;</li>
+<li>la fréquence et la gravité du problème.</li>
+</ol>
+<p>Le manuel général se trouve dans <code>MANUEL_UTILISATION.md</code>, le dossier de décision dans <code>DOSSIER_PROPOSITION_GIS_CENTRE.md</code> et la description technique dans <code>README.md</code>.</p></body></html>

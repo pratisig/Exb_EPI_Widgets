@@ -1,0 +1,1277 @@
+<!DOCTYPE html><html lang='fr'><head><meta charset='utf-8'><title>Dossier de proposition — Epi Aggregator 2.0</title><style>
+@page { size: A4; margin: 1.6cm 1.4cm; }
+body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; color: #1f2933; line-height: 1.45; }
+h1 { font-size: 18pt; color: #0b4f83; border-bottom: 2px solid #0b4f83; padding-bottom: 6px; }
+h2 { font-size: 13pt; color: #1261a0; margin-top: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; }
+h3 { font-size: 11pt; color: #1d4f6e; margin-top: 12px; }
+h4 { font-size: 10pt; color: #1d4f6e; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; font-size: 8pt; }
+th, td { border: 1px solid #b8c4d0; padding: 4px 5px; text-align: left; vertical-align: top; word-wrap: break-word; }
+th { background: #eaf4fa; color: #0b4f83; }
+code, pre { font-family: Courier, monospace; font-size: 8pt; background: #f4f6f8; }
+pre { border: 1px solid #dde3e9; padding: 6px; white-space: pre-wrap; }
+blockquote { border-left: 3px solid #1261a0; margin: 6px 0; padding: 2px 8px; background: #f5fafd; }
+ul, ol { margin: 4px 0 8px 18px; }
+li { margin-bottom: 2px; }
+hr { border: 0; border-top: 1px solid #cbd5e1; margin: 14px 0; }
+</style></head><body><h1 id="dossier-de-proposition-epi-aggregator-20">Dossier de proposition — Epi Aggregator 2.0</h1>
+<h2 id="test-et-validation-par-le-gis-centre">Test et validation par le GIS Centre</h2>
+<table>
+<thead>
+<tr>
+<th>Champ</th>
+<th>Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Objet</strong></td>
+<td>Proposition de test, validation ou rejet du widget Epi Aggregator 2.0</td>
+</tr>
+<tr>
+<td><strong>Destinataires</strong></td>
+<td>Équipes GIS Centre, coordination GIS, référents surveillance épidémiologique, administrateur Portal</td>
+</tr>
+<tr>
+<td><strong>Émetteur</strong></td>
+<td>Équipe de développement Epi Aggregator (MSF GIS community)</td>
+</tr>
+<tr>
+<td><strong>Version proposée</strong></td>
+<td><strong>Epi Aggregator 2.0.0</strong> (<code>manifest.json</code> -&gt; <code>"version": "2.0.0"</code>)</td>
+</tr>
+<tr>
+<td><strong>Référence source</strong></td>
+<td>Dépôt <code>pratisig/Exb_EPI_Widgets</code>, branche <code>main</code>, commit <code>907b88ded195ca2f4c0a2c92118b1dd1a350385d</code></td>
+</tr>
+<tr>
+<td><strong>Date d'émission</strong></td>
+<td>16 septembre 2026</td>
+</tr>
+<tr>
+<td><strong>Décision demandée</strong></td>
+<td><strong>Validation</strong> — <strong>Validation avec réserves</strong> — <strong>Rejet</strong></td>
+</tr>
+<tr>
+<td><strong>Révision</strong></td>
+<td>2 — correctifs E1 à E3 intégrés et vérifiés, documentation alignée (PR #2). Révision 1 : état initial de la version 2.0.0</td>
+</tr>
+<tr>
+<td><strong>Statut du document</strong></td>
+<td>Pour décision</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-objet-et-decision-demandee">1. Objet et décision demandée</h2>
+<p>Le présent dossier propose à l'équipe GIS Centre de prendre en charge la <strong>campagne de test et d'homologation</strong> du widget <em>Epi Aggregator 2.0</em>, puis de prononcer une décision formelle :</p>
+<ol>
+<li><strong>Validation</strong> : le widget est accepté pour un déploiement pilote sur des expériences de surveillance réelles ;</li>
+<li><strong>Validation avec réserves</strong> : accepté sous conditions, avec liste d'actions correctives datée ;</li>
+<li><strong>Rejet</strong> : le widget n'est pas retenu en l'état, avec motif documenté.</li>
+</ol>
+<p>Le dossier fournit : la description de la version livrée et de ses fonctionnalités, les écarts connus entre la documentation et le code, le protocole de test, les critères de décision, les livrables attendus des testeurs et le formulaire de décision.</p>
+<blockquote>
+<p><strong>Portée de la demande.</strong> Il ne s'agit pas d'une demande d'installation en production. Il s'agit d'un pilote encadré, sur données anonymisées, dont l'objectif est de prononcer une décision traçable et de constituer une base de défauts à corriger.</p>
+</blockquote>
+<hr />
+<h2 id="2-synthese-executive">2. Synthèse exécutive</h2>
+<p><strong>Ce qu'est le widget.</strong> Epi Aggregator est un widget personnalisé pour ArcGIS Experience Builder Developer Edition. Il lit une ou plusieurs line-lists épidémiologiques, normalise un champ de date hétérogène, produit une série temporelle agrégée (semaine épidémiologique, mois, trimestre, année) et publie un filtre temporel aux cartes, tableaux, graphiques, listes et indicateurs connectés à la même source de données.</p>
+<p><strong>Ce qu'il apporte au GIS Centre.</strong> Un moyen de transformer une line-list brute en objet d'analyse temporelle et cartographique sans pipeline ETL, sans modification de la donnée source, et sans développement spécifique supplémentaire : timeline animée, comparaison inter-annuelle, agrégats par zone administrative, export CSV.</p>
+<p><strong>Ce qu'il n'est pas.</strong> Ce n'est ni un ETL de qualité de données, ni un moteur de calcul de taux d'incidence, ni un outil d'alerte. Les limites sont détaillées au § 5 et au § 13.</p>
+<p><strong>Demande.</strong> Tester la version 2.0.0 selon le protocole du § 9, consigner les résultats, puis statuer selon les critères du § 10 et retourner le formulaire du § 14.</p>
+<p><strong>Correctifs de préparation au pilote.</strong> Six écarts entre la documentation, le code et les critères d'acceptation ont été identifiés (§ 6). <strong>Trois sont corrigés</strong> dans la branche de test (E1, E2, E3) et <strong>trois sont traités par la documentation</strong> (E4, E5, E6) : voir le § 6.1 pour le détail des correctifs et leur vérification.</p>
+<p><strong>Point d'attention restant.</strong> La confirmation de la version Experience Builder cible (écart E4) reste à la charge du GIS Centre, et un champ temporel de type texte ne permet pas le filtrage de la source : c'est une limite structurelle d'ArcGIS, désormais explicite dans le widget et documentée (§ 6.2).</p>
+<hr />
+<h2 id="3-tracabilite-de-la-version-proposee">3. Traçabilité de la version proposée</h2>
+<table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Valeur constatée</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Version du widget</td>
+<td><code>2.0.0</code> dans <code>widgets/epi-aggregator/manifest.json</code></td>
+</tr>
+<tr>
+<td>Libellé</td>
+<td><code>Epi Aggregator</code></td>
+</tr>
+<tr>
+<td>Auteur déclaré</td>
+<td>MSF GIS community</td>
+</tr>
+<tr>
+<td>Licence</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td>Locales</td>
+<td><code>en</code>, <code>fr</code></td>
+</tr>
+<tr>
+<td>Dépendance déclarée</td>
+<td><code>jimu-arcgis</code></td>
+</tr>
+<tr>
+<td>Version ExB déclarée dans le manifeste</td>
+<td><code>exbVersion: "1.14.0"</code> — <strong>à confirmer</strong>, les documents de transfert ciblent ExB 1.15 (§ 6, écart E4)</td>
+</tr>
+<tr>
+<td>Taille par défaut du widget</td>
+<td>380 × 520 px</td>
+</tr>
+<tr>
+<td>Intégration initiale</td>
+<td>PR #1 « feat: release Epi Aggregator 2.0 », <strong>fusionnée dans <code>main</code> le 3 septembre 2026</strong></td>
+</tr>
+<tr>
+<td>Correctifs de préparation au pilote</td>
+<td>Branche <code>arena/01a0aaf8-exb-epi-widgets</code> — PR #2 : écarts E1 à E3 corrigés, guides et dossier mis à jour. <strong>À fusionner dans <code>main</code> avant la campagne de test</strong></td>
+</tr>
+<tr>
+<td>Commit de référence</td>
+<td><code>907b88d</code> — « Merge Epi Aggregator 2.0 »</td>
+</tr>
+<tr>
+<td>Tag de version</td>
+<td>Aucun tag Git publié</td>
+</tr>
+<tr>
+<td>Suite de tests automatisés</td>
+<td>Aucune</td>
+</tr>
+<tr>
+<td>Intégration continue</td>
+<td>Aucune</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conséquence pour le test.</strong> La validation repose entièrement sur une campagne manuelle. Toute régression devra être décrite par un scénario reproductible (procédure, configuration, résultat attendu, résultat observé), car il n'existe pas de test automatisé permettant de la circonscrire.</p>
+<h3 id="31-verification-technique-effectuee-avant-remise">3.1 Vérification technique effectuée avant remise</h3>
+<p>Les correctifs E1 à E3 ont été vérifiés par compilation statique, dans l'attente de la campagne d'exécution :</p>
+<table>
+<thead>
+<tr>
+<th>Contrôle</th>
+<th>Méthode</th>
+<th>Résultat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation du widget</td>
+<td>Bundling TypeScript/TSX des modules <code>runtime</code> et <code>setting</code> (les dépendances <code>jimu-*</code>, fournies par l'instance Experience Builder, sont remplacées par des stubs de types)</td>
+<td>Compilation sans erreur</td>
+</tr>
+<tr>
+<td>Typage</td>
+<td><code>tsc</code> en mode <code>strict</code> avec <code>noUnusedLocals</code> et <code>noUnusedParameters</code></td>
+<td>Aucune erreur nouvelle par rapport à la version 2.0.0 d'origine ; <strong>16 diagnostics de code mort supprimés</strong> (variables, paramètres et imports déclarés mais jamais utilisés, dont l'interface jamais rendue de l'écart E1)</td>
+</tr>
+<tr>
+<td>Erreurs pré-existantes</td>
+<td>Comparaison des diagnostics avant/après sur le même harnais</td>
+<td>Deux erreurs de typage pré-existantes corrigées au passage (perte de narrowing TypeScript dans une closure)</td>
+</tr>
+<tr>
+<td>Moteur d'agrégation</td>
+<td>17 contrôles fonctionnels exécutés sur les fonctions pures (<code>aggregation.ts</code>, <code>comparison.ts</code>, <code>spatialAggregation.ts</code>), sans dépendance Experience Builder</td>
+<td><strong>17/17 conformes</strong> : semaines ISO (dont semaine 53), conventions jour/mois et mois/jour, dates impossibles rejetées, séries Excel, libellés de semaine texte (<code>2024-W02</code>, <code>Week 04-2025</code>, <code>S01_2026</code>), comptage, somme, médiane, périodes manquantes à zéro, dates illisibles comptées, comparaison inter-annuelle, agrégats par zone</td>
+</tr>
+<tr>
+<td>Défaut détecté et corrigé</td>
+<td>Contrôles fonctionnels</td>
+<td>Libellé de comparaison inter-annuelle erroné (<code>SW01</code> au lieu de <code>S01</code>) — corrigé dans <code>comparison.ts</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ce que cette vérification ne couvre pas.</strong> Elle ne remplace pas l'exécution dans Experience Builder : l'installation, le rendu, la propagation du filtre, la couche virtuelle et les performances restent à valider par la campagne de test (T1 à T15). Aucun test automatisé n'est livré.</p>
+<p><strong>Branche à utiliser.</strong> Pour ce pilote, utiliser la branche de test <strong><code>arena/01a0aaf8-exb-epi-widgets</code></strong> (correctifs E1 à E3), à fusionner dans <code>main</code> après revue. La référence historique — version 2.0.0 issue de la PR #1 — est <strong><code>main</code> au commit <code>907b88d</code></strong>. Une archive du répertoire <code>widgets/epi-aggregator</code> peut être jointe au dossier de test pour figer l'artefact.</p>
+<p><strong>Identification de l'artefact testé.</strong> Aucun tag Git n'est publié : noter le résultat de <code>git log -1 --oneline</code> dans la fiche de retour (§ 11) et, à l'issue du pilote, taguer la version validée par le GIS Centre (§ 13).</p>
+<hr />
+<h2 id="4-fonctionnalites-livrees-dans-la-version-200">4. Fonctionnalités livrées dans la version 2.0.0</h2>
+<p><strong>Légende du statut</strong>
+- <strong>Livré</strong> : présent dans le code de la version 2.0.0.
+- <strong>Livré — à confirmer</strong> : présent dans le code, mais la documentation associée est incomplète, contradictoire ou en retard (§ 6).
+- <strong>Non vérifié</strong> : présent dans le code, jamais exécuté sur une line-list réelle à ce jour.</p>
+<h3 id="41-sources-et-configuration">4.1 Sources et configuration</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Fonction</th>
+<th>Détail</th>
+<th>Statut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>Sources multiples</td>
+<td>Plusieurs Feature Layers ou tables line-list dans un même widget ; une section de configuration par source</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>Configuration indépendante par source</td>
+<td>Champ date, statistique, champ de mesure, période, base de semaine, convention de date, mode de filtre, échelle, décimales, libellé court, champ de regroupement spatial</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>Détection des champs par le schéma ArcGIS</td>
+<td>Listes de champs filtrées par type : champs date, champs numériques, champs texte ; les listes s'adaptent à la statistique choisie</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>Mode compact « timeline uniquement »</td>
+<td>Par défaut, les cartes de synthèse par source sont masquées ; les cartes complètes s'activent dans <strong>Affichage</strong>. En mode compact, les avertissements de qualité (dates illisibles, champ texte) restent visibles et chaque source conserve sa timeline si plusieurs sources sont configurées</td>
+<td>Livré — <strong>corrigé</strong> (E1)</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Lecture d'une source sans champ date configuré</td>
+<td>La source reste masquée du panneau d'analyse au lieu d'afficher un résultat erroné</td>
+<td>Livré</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-lecture-et-normalisation-des-dates">4.2 Lecture et normalisation des dates</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Fonction</th>
+<th>Détail</th>
+<th>Statut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F6</td>
+<td>Formats pris en charge</td>
+<td>Date native ArcGIS (<code>esriFieldTypeDate</code>), horodatage epoch milliseconde, date série Excel, ISO <code>YYYY-MM-DD</code>, <code>DD/MM/YYYY</code>, <code>MM/DD/YYYY</code>, <code>YYYY-MM</code>, et formats texte interprétables par JavaScript</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>Libellés de semaine texte</td>
+<td><code>Week 03-2025</code>, <code>2025-W04</code>, <code>W01-2026</code>, <code>S01_2026</code>, <code>wk</code>, <code>w</code> -&gt; normalisés en semaine ISO. Les champs texte sont désormais sélectionnables comme champ temporel via l'option <strong>Afficher aussi les champs texte</strong></td>
+<td>Livré — <strong>corrigé</strong> (E2)</td>
+</tr>
+<tr>
+<td>F7b</td>
+<td>Limite de filtrage des champs texte</td>
+<td>Un champ texte semaine ne peut pas recevoir de requête <code>DATE '…'</code> : le filtrage de la source, de la carte et des composants est désactivé et signalé (widget + panneau Contenu) au lieu d'échouer silencieusement</td>
+<td>Livré — <strong>corrigé</strong> (E2)</td>
+</tr>
+<tr>
+<td>F8</td>
+<td>Dates ambiguës</td>
+<td>Convention <strong>jour/mois</strong> (défaut terrain), <strong>mois/jour</strong>, ou <strong>automatique</strong> ; une composante supérieure à 12 lève l'ambiguïté quel que soit le réglage</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F9</td>
+<td>Contrôle de validité</td>
+<td>Une date impossible (ex. <code>31/02/2024</code>) est rejetée et comptée comme date illisible ; calendrier en UTC, sans dérive de fuseau</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F10</td>
+<td>Signalement des dates illisibles</td>
+<td>Compteur et bandeau d'avertissement : <code>n enregistrement(s) ignoré(s) : date non reconnue</code></td>
+<td>Livré</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-agregations-et-statistiques">4.3 Agrégations et statistiques</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Fonction</th>
+<th>Détail</th>
+<th>Statut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F11</td>
+<td>Semaine épidémiologique ISO</td>
+<td>Semaines calendaires du lundi au dimanche, clé <code>AAAA-Wnn</code>, libellé <code>AAAA Snn</code> ; l'existence d'une semaine 53 n'est pas artificiellement bloquée</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F12</td>
+<td>Semaine relative à l'épidémie</td>
+<td>Base de semaine alternative à partir d'une date de début d'épidémie : <code>EPI W1</code>, <code>EPI W2</code>, …</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F13</td>
+<td>Mois, trimestre, année</td>
+<td>Clés <code>AAAA-MM</code>, <code>AAAA-Tn</code>, <code>AAAA</code></td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F14</td>
+<td>Statistiques</td>
+<td><code>Count</code>, <code>Sum</code>, <code>Mean</code>, <code>Median</code>, <code>Min</code>, <code>Max</code>, <code>First</code>, <code>Last</code>, <code>Distinct</code></td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F15</td>
+<td><code>Min</code> / <code>Max</code> sur une date</td>
+<td>Retourne la date la plus ancienne ou la plus récente au format ISO</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F16</td>
+<td>Périodes manquantes</td>
+<td>Option « Créer des périodes à zéro » : les périodes sans enregistrement sont matérialisées avec une valeur 0 entre la première et la dernière période</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F17</td>
+<td>Recalcul propre</td>
+<td>Le filtre temporel précédent est effacé avant chaque recalcul, pour qu'un filtre hebdomadaire ne limite pas par erreur un résultat mensuel ou annuel</td>
+<td>Livré</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44-filtrage-et-synchronisation-avec-la-page">4.4 Filtrage et synchronisation avec la page</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Fonction</th>
+<th>Détail</th>
+<th>Statut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F18</td>
+<td>Filtre progressif / cumulatif</td>
+<td>Affiche toutes les données depuis la première période jusqu'à la fin de la période active</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F19</td>
+<td>Filtre période unique</td>
+<td>Applique la fenêtre <code>[début de la période active, fin de la période active)</code></td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F20</td>
+<td>Aucun filtre</td>
+<td>La timeline reste opérationnelle mais la source n'est pas restreinte</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F21</td>
+<td>Publication du filtre</td>
+<td>Requête temporelle transmise à la source via <code>updateQueryParams</code>, identifiée par le couple widget/source ; les composants connectés à la même source suivent la période active. Exception : champ temporel de type texte, non filtrable par le service (F7b)</td>
+<td>Livré — <strong>non vérifié</strong> sur expérience réelle</td>
+</tr>
+<tr>
+<td>F22</td>
+<td>Réinitialisation du filtre</td>
+<td>Bouton <strong>Réinitialiser</strong> qui restaure toutes les données</td>
+<td>Livré</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45-timeline-liee">4.5 Timeline liée</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Fonction</th>
+<th>Détail</th>
+<th>Statut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F23</td>
+<td>Timeline liée</td>
+<td>Une timeline au-dessus des sources, qui pilote les sources partageant la même clé de période</td>
+<td>Livré — <strong>non vérifié</strong> avec plus d'une source réelle</td>
+</tr>
+<tr>
+<td>F23b</td>
+<td>Timeline de chaque source</td>
+<td>Chaque source conserve sa propre timeline (navigation, lecture, vitesse, cumulé, bornes). En mode compact, elle est affichée dès que plusieurs sources sont configurées, et omise lorsqu'une seule source existe (la timeline liée suffit)</td>
+<td>Livré — <strong>ajouté</strong> (E1)</td>
+</tr>
+<tr>
+<td>F23c</td>
+<td>Cumulé / brut sur les périodes</td>
+<td>Bouton <strong>Cumulé / Brut</strong> : les valeurs affichées sur les périodes passent de la valeur de période au cumul depuis la première période ; désactivé pour les statistiques non numériques</td>
+<td>Livré — <strong>ajouté</strong> (E1)</td>
+</tr>
+<tr>
+<td>F23d</td>
+<td>Indicateur de série</td>
+<td>La timeline liée affiche les bornes de la série et, lorsque les valeurs sont numériques, le total cumulé de l'ensemble des périodes</td>
+<td>Livré — <strong>ajouté</strong> (E1)</td>
+</tr>
+<tr>
+<td>F24</td>
+<td>Lecture animée</td>
+<td>Play/Pause et trois vitesses : lent (2 000 ms), normal (1 200 ms), rapide (600 ms)</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F25</td>
+<td>Navigation</td>
+<td>Première période, reculer, avancer, dernière période, plus un curseur de défilement direct</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F26</td>
+<td>Affichage des bornes</td>
+<td>Libellé de la période active et plage totale <code>première période — dernière période</code></td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F27</td>
+<td>Export CSV</td>
+<td>Export des périodes agrégées : <code>period,label,count,value,start,end</code> ; en mode regroupement spatial : <code>boundary,period,label,count,value,start,end</code>. Les agrégats par zone alimentent désormais réellement cet export (auparavant la branche « par zone » n'était jamais déclenchée)</td>
+<td>Livré — <strong>corrigé</strong> (E1)</td>
+</tr>
+<tr>
+<td>F27b</td>
+<td>Repli de la liste des périodes</td>
+<td>Bouton <strong>Afficher / Masquer les périodes</strong> ; liste repliée automatiquement au-delà de douze périodes, sans désactiver le curseur</td>
+<td>Livré — <strong>corrigé</strong> (E1)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="46-carte-symbologie-et-regroupement-spatial">4.6 Carte, symbologie et regroupement spatial</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Fonction</th>
+<th>Détail</th>
+<th>Statut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F28</td>
+<td>Carte pilotée</td>
+<td>Sélection d'une carte dans <strong>Carte à piloter</strong> ; la période active est appliquée aux couches liées par <code>definitionExpression</code></td>
+<td>Livré — <strong>non vérifié</strong></td>
+</tr>
+<tr>
+<td>F29</td>
+<td>Rééchelle dynamique</td>
+<td>Mode <strong>dynamique</strong> : les bornes <code>minDataValue</code> / <code>maxDataValue</code> des variables visuelles déjà configurées sont recalculées pour la période ; mode <strong>fixe</strong> : échelle conservée sur toute l'analyse</td>
+<td>Livré — <strong>non vérifié</strong></td>
+</tr>
+<tr>
+<td>F30</td>
+<td>Respect du renderer</td>
+<td>Le widget ne remplace ni le renderer ni la palette : cercles proportionnels, couleurs graduées et classes restent configurés dans la carte</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F31</td>
+<td>Regroupement par zone</td>
+<td>Champ de regroupement optionnel par source (ex. <code>adm1_name</code>, <code>adm2_name</code>, <code>district</code>) ; agrégats calculés par période <strong>et</strong> par zone</td>
+<td>Livré — <strong>non vérifié</strong></td>
+</tr>
+<tr>
+<td>F32</td>
+<td>Couche virtuelle agrégée</td>
+<td>Jointure à la volée des agrégats période/zone avec les géométries d'une couche frontière (interne à la source ou couche dédiée), créée comme FeatureLayer côté client et retirée au nettoyage. Champs produits : <code>boundary</code>, <code>period</code>, <code>value</code>, <code>count</code>, <code>label</code></td>
+<td>Livré — <strong>non vérifié</strong> ; documentation alignée (E3)</td>
+</tr>
+<tr>
+<td>F32b</td>
+<td>Compteur zone × période</td>
+<td>La carte de la source affiche le nombre d'agrégats zone × période produits, avec rappel du champ de regroupement</td>
+<td>Livré — <strong>ajouté</strong> (E1)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="47-qualite-indicateurs-langue-et-presentation">4.7 Qualité, indicateurs, langue et présentation</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Fonction</th>
+<th>Détail</th>
+<th>Statut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F33</td>
+<td>Synthèse par source</td>
+<td>Nombre total d'enregistrements valides, valeur du pic et libellé de la période du pic, nombre de périodes générées, valeur de la période active ou total cumulé, nombre de dates illisibles ignorées</td>
+<td>Livré — <strong>complété</strong> (E1)</td>
+</tr>
+<tr>
+<td>F34</td>
+<td>Comparaison des années</td>
+<td>Mode « Comparer les années » : alignement des mêmes périodes (S01 2023 vs S01 2024…), années sélectionnables, année de référence, colonnes d'écart absolu (delta) et relatif (%)</td>
+<td>Livré — <strong>non vérifié</strong></td>
+</tr>
+<tr>
+<td>F35</td>
+<td>Période active affichée</td>
+<td>La période affichée et le mode de filtre sont rappelés en tête de chaque source</td>
+<td>Livré</td>
+</tr>
+<tr>
+<td>F36</td>
+<td>Bilinguisme FR/EN</td>
+<td>Libellés de l'interface en français ou en anglais selon la locale configurée, y compris les libellés d'accessibilité des commandes de timeline (auparavant figés en français)</td>
+<td>Livré — <strong>complété</strong> (E1)</td>
+</tr>
+<tr>
+<td>F37</td>
+<td>Présentation</td>
+<td>Couleur principale, couleur de la ligne de timeline, taille de timeline (petite/moyenne/grande), décimales affichées (0 à 3)</td>
+<td>Livré</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-perimetre-exclu-ce-que-le-widget-ne-fait-pas">5. Périmètre exclu (ce que le widget ne fait pas)</h2>
+<ul>
+<li><strong>Aucune écriture dans les données.</strong> Le widget lit les enregistrements, calcule et filtre ; il ne modifie ni la line-list ni la couche frontière. La couche virtuelle agrégée est temporaire et côté client uniquement.</li>
+<li><strong>Aucune agrégation côté serveur.</strong> Le calcul est réalisé dans le navigateur après lecture des enregistrements (<code>outFields: ['*']</code>, <code>pageSize: 10000</code>). Les volumes au-delà de cette limite doivent être évalués en test avant tout déploiement sur une grosse line-list.</li>
+<li><strong>Aucun calcul de taux.</strong> Incidence, létalité, taux d'attaque et leurs dénominateurs de population restent à préparer dans une couche analytique dédiée.</li>
+<li><strong>Aucun seuil d'alerte, aucune moyenne mobile, aucun intervalle de confiance.</strong></li>
+<li><strong>Aucune gestion de la qualité de la donnée source</strong> : doublons, notifications répétées, dates futures et fuseaux horaires relèvent du contrôle amont (§ 3 du manuel utilisateur).</li>
+<li><strong>Aucune sélection cartographique ni édition géométrique.</strong></li>
+<li><strong>Aucune protection contre la ré-identification</strong> : à traiter au niveau du jeu de données et des règles de diffusion (petits effectifs).</li>
+</ul>
+<hr />
+<h2 id="6-ecarts-documentation-code-etat">6. Écarts documentation / code : état</h2>
+<p>Six écarts entre la documentation livrée, le code et les critères d'acceptation avaient été identifiés. <strong>Trois ont été corrigés dans le code et la documentation, trois ont été traités par la documentation.</strong> Le tableau donne le statut et la preuve de chaque traitement.</p>
+<h3 id="61-statut-des-ecarts">6.1 Statut des écarts</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Écart</th>
+<th>Statut</th>
+<th>Traitement effectué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>E1</strong></td>
+<td><strong>Liste de périodes repliable</strong> et timeline par source annoncées par la documentation mais jamais rendues : l'interface prévue existait dans la feuille de style, sans code de rendu (<code>periodsOpen</code> calculé puis inutilisé)</td>
+<td><strong>Corrigé</strong></td>
+<td>Rendu effectif de la timeline de chaque source (navigation, lecture, vitesse, bornes) et du bouton <strong>Afficher / Masquer les périodes</strong>, avec repli automatique au-delà de douze périodes. Complété par un bouton <strong>Cumulé / Brut</strong>, un indicateur de total cumulé sur la timeline liée et un compteur zone × période. L'export CSV par zone, jusqu'alors jamais déclenché, est alimenté</td>
+</tr>
+<tr>
+<td><strong>E2</strong></td>
+<td><strong>Critère d'acceptation inatteignable</strong> : « un champ EpiWeek texte est normalisé » alors que le sélecteur ne proposait que les champs <code>esriFieldTypeDate</code></td>
+<td><strong>Corrigé avec limite documentée</strong></td>
+<td>Option <strong>Afficher aussi les champs texte (semaines EpiWeek…)</strong> dans le panneau Contenu ; le type du champ temporel est enregistré et, pour un champ texte, le filtrage de la source est désactivé et signalé dans le widget comme dans le panneau Contenu, au lieu de produire une requête invalide. Voir la limite résiduelle au § 6.2</td>
+</tr>
+<tr>
+<td><strong>E3</strong></td>
+<td><strong>Manuel en retard</strong> : le regroupement spatial et la couche virtuelle étaient présentés comme « à activer dans l'étape suivante »</td>
+<td><strong>Corrigé</strong></td>
+<td>Manuel réécrit (§ 17 et § 18) : comportement réél, champs produits (<code>boundary</code>, <code>period</code>, <code>value</code>, <code>count</code>, <code>label</code>), cycle de vie de la couche temporaire et condition de cohérence des libellés de zone. Scénarios de test I et J conservés</td>
+</tr>
+<tr>
+<td><strong>E4</strong></td>
+<td><strong>Version Experience Builder</strong> : le manifeste déclare <code>exbVersion: "1.14.0"</code>, l'outillage cible ExB 1.15 / Node 20</td>
+<td><strong>Traité, décision requise</strong></td>
+<td>Signalé dans le guide de transfert (§ 2 et § 10) comme point à confirmer par le GIS Centre. La déclaration du manifeste sera alignée sur la version effectivement retenue pour le pilote</td>
+</tr>
+<tr>
+<td><strong>E5</strong></td>
+<td><strong>Référence de branche obsolète</strong> : le guide de transfert pointait une branche déjà fusionnée</td>
+<td><strong>Corrigé</strong></td>
+<td>Guide réécrit : référence de test explicite, commande <code>git checkout</code> et consigne de noter <code>git log -1 --oneline</code> dans la fiche de retour</td>
+</tr>
+<tr>
+<td><strong>E6</strong></td>
+<td><strong>Note de compatibilité du README inexacte</strong> (mention de <code>DataSourceTypes.MapService</code>)</td>
+<td><strong>Corrigé</strong></td>
+<td>README aligné sur le code (<code>AllDataSourceTypes.FeatureLayer</code>), avec une section « Version » et une section « Vérification avant livraison »</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-limites-residuelles-assumees">6.2 Limites résiduelles assumées</h3>
+<ul>
+<li><strong>Champ temporel de type texte</strong> : l'agrégation, la timeline, les indicateurs et l'export fonctionnent, mais le filtrage de la source, de la carte et des composants connectés n'est pas possible (ArcGIS ne compare pas un champ texte à une borne <code>DATE '…'</code>). Le widget le signale explicitement. Pour disposer du filtrage, publier un champ <code>esriFieldTypeDate</code> ou en créer un dans la couche.</li>
+<li><strong>Version Experience Builder</strong> : à confirmer par le GIS Centre avant la campagne (écart E4).</li>
+<li><strong>Validation d'exécution</strong> : les correctifs sont vérifiés par compilation statique et typage (§ 3.1). Leur comportement dans Experience Builder relève de la campagne de test (T1).</li>
+</ul>
+<h2 id="7-prerequis-techniques">7. Prérequis techniques</h2>
+<table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Exigence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ArcGIS Experience Builder</td>
+<td>Developer Edition <strong>1.15</strong> (ou version compatible — confirmer via l'écart E4)</td>
+</tr>
+<tr>
+<td>Runtime Node.js</td>
+<td>Node.js <strong>20 LTS</strong></td>
+</tr>
+<tr>
+<td>Organisation</td>
+<td>ArcGIS Online ou ArcGIS Enterprise ; portail MSF : <code>https://geo.geomsf.org/portal</code></td>
+</tr>
+<tr>
+<td>Compte</td>
+<td>Droits de lecture sur les Feature Layers et tables de test</td>
+</tr>
+<tr>
+<td>Client ID OAuth</td>
+<td>Créé dans le même portail que l'instance ExB. URI de redirection : <code>https://localhost:3001/jimu-core/oauth-callback.html</code></td>
+</tr>
+<tr>
+<td>Reverse proxy / CloudFront</td>
+<td>Si le portail est derrière un proxy, l'administrateur doit autoriser et transmettre les paramètres de <code>oauth2/authorize</code> et <code>oauth2/token</code></td>
+</tr>
+<tr>
+<td>Outils</td>
+<td><code>git</code> <strong>ou</strong> une archive du dépôt ; navigateur à jour ; droits suffisants pour les liens NVM sous Windows</td>
+</tr>
+<tr>
+<td>Installation</td>
+<td>Pour ExB 1.15, utiliser <code>npm ci</code> (et non <code>pnpm ci</code>) dans <code>server</code> puis <code>client</code></td>
+</tr>
+<tr>
+<td>Données</td>
+<td>Line-list <strong>anonymisée</strong> : ni identité, ni coordonnée individuelle. Structure minimale : <code>case_id</code>, <code>onset_date</code>, <code>adm1_name</code>, <code>status</code>, <code>cases</code>, <code>deaths</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-installation-et-mise-en-route">8. Installation et mise en route</h2>
+<h3 id="81-voie-rapide-poste-windows">8.1 Voie rapide (poste Windows)</h3>
+<ol>
+<li>Récupérer le dépôt sur la référence de test :
+   <code>powershell
+   git clone https://github.com/pratisig/Exb_EPI_Widgets.git
+   cd Exb_EPI_Widgets
+   git checkout arena/01a0aaf8-exb-epi-widgets
+   git log -1 --oneline</code></li>
+<li>Lancer le script fourni, qui active Node 20, installe les dépendances si nécessaire, copie le widget et ouvre les fenêtres serveur et client :
+   <code>powershell
+   .\tools\Start-ExperienceBuilder.ps1 `
+     -ExperienceBuilderPath "C:\Chemin\ArcGISExperienceBuilder" `
+     -InstallDependencies -CopyWidget</code></li>
+<li>Ouvrir <code>https://localhost:3001/</code>.</li>
+<li>Conserver ouvertes les deux fenêtres PowerShell (serveur et client) pendant toute la session.</li>
+</ol>
+<h3 id="82-voie-manuelle">8.2 Voie manuelle</h3>
+<pre><code class="language-powershell">Copy-Item `
+  &quot;.\widgets\epi-aggregator&quot; `
+  &quot;C:\Chemin\ArcGISExperienceBuilder\client\your-extensions\widgets\epi-aggregator&quot; `
+  -Recurse -Force
+</code></pre>
+<p>Puis, dans le dossier <code>server</code> : <code>npm ci</code> et <code>npm run start</code> ; dans le dossier <code>client</code> : <code>npm ci</code> et <code>npm run start</code>.</p>
+<h3 id="83-controle-dintegrite-de-la-copie">8.3 Contrôle d'intégrité de la copie</h3>
+<p>Le widget doit contenir exactement :</p>
+<pre><code class="language-text">icon.svg
+manifest.json
+config.json
+src/runtime/widget.tsx
+src/runtime/aggregation.ts
+src/runtime/comparison.ts
+src/runtime/spatialAggregation.ts
+src/runtime/virtualLayer.ts
+src/runtime/style.css
+src/setting/setting.tsx
+src/setting/style.css
+src/config.ts
+</code></pre>
+<blockquote>
+<p>Le widget est livré <strong>sans <code>node_modules</code> ni lockfile</strong> : les dépendances (<code>jimu-core</code>, <code>jimu-ui</code>, <code>jimu-arcgis</code>) sont celles de l'instance Experience Builder qui l'héberge. Aucune nouvelle dépendance externe n'est introduite.</p>
+</blockquote>
+<h3 id="84-premier-montage-dans-une-experience">8.4 Premier montage dans une expérience</h3>
+<ol>
+<li>Ajouter <strong>Epi Aggregator</strong> à l'expérience.</li>
+<li>Ouvrir le panneau <strong>Contenu</strong>.</li>
+<li>Sélectionner une ou plusieurs sources line-list.</li>
+<li>Pour chaque source : choisir le <strong>champ date détecté</strong>, la <strong>statistique</strong>, le <strong>champ de mesure</strong> si nécessaire, l'<strong>agrégation</strong>, la <strong>base des semaines</strong>, la <strong>convention des dates</strong>, le <strong>mode d'affichage</strong>.</li>
+<li>Optionnel : <strong>champ de regroupement spatial</strong>, <strong>couche frontière / géométrie</strong>, <strong>carte à piloter</strong>.</li>
+<li>Enregistrer l'expérience.</li>
+</ol>
+<hr />
+<h2 id="9-protocole-de-test-propose">9. Protocole de test proposé</h2>
+<p>Le protocole détaillé, avec les manipulations pas à pas, figure dans <code>GUIDE_TRANSFERT_TEST_GIS_CENTRE.md</code> (scénarios A à F). Le tableau ci-dessous est la <strong>grille de décision</strong> : chaque test porte un identifiant, une priorité et un résultat attendu vérifiable.</p>
+<p><strong>Priorités</strong> : <strong>P0</strong> = bloquant, conditionne à lui seul la décision ; <strong>P1</strong> = majeur ; <strong>P2</strong> = mineur.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Priorité</th>
+<th>Scénario</th>
+<th>Configuration</th>
+<th>Résultat attendu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>P0</td>
+<td>Installation et compilation</td>
+<td>Copie du widget, <code>npm ci</code> + <code>npm run start</code> dans <code>server</code> et <code>client</code></td>
+<td>Widget visible dans le panneau, aucune erreur bloquante de compilation ni dans la console du navigateur</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>P0</td>
+<td>Intégrité des données sources</td>
+<td>Relever le nombre d'enregistrements, le <code>lastEditDate</code> et un échantillon de valeurs avant et après les tests</td>
+<td>Aucune modification de la line-list ni de la couche frontière</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>P0</td>
+<td>Champ date natif</td>
+<td>Source avec <code>onset_date</code> en <code>esriFieldTypeDate</code></td>
+<td>Champ détecté automatiquement ; agrégation correcte</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>P0</td>
+<td>Semaine ISO</td>
+<td>Agrégation semaine ISO, plusieurs années, dont une année à 53 semaines</td>
+<td>Semaines <code>AAAA-Snn</code> exactes, bornes lundi–dimanche, semaine 53 non tronquée</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>P0</td>
+<td>Filtre temporel sur la page</td>
+<td>Carte + tableau + indicateur sur la même source ; cliquer plusieurs périodes</td>
+<td>Le filtre suit la période active, sans rechargement de l'expérience ; mode période unique et mode cumulatif conformes à F18/F19</td>
+</tr>
+<tr>
+<td>T5b</td>
+<td>P1</td>
+<td>Timeline de source, cumulé et repli</td>
+<td>Mode compact puis détaillé ; boutons, curseur, lecture, vitesses ; bouton <strong>Cumulé / Brut</strong> ; <strong>Masquer / Afficher les périodes</strong></td>
+<td>La navigation et la lecture fonctionnent ; les valeurs passent de la période au cumul ; le bouton Cumulé est désactivé pour les statistiques non numériques ; le repli conserve curseur et période active ; avec une seule source, la timeline liée suffit en mode compact</td>
+</tr>
+<tr>
+<td>T6</td>
+<td>P1</td>
+<td>Périodes manquantes</td>
+<td>Supprimer une semaine au milieu de la série, activer « Créer des périodes à zéro »</td>
+<td>La période absente apparaît avec la valeur 0</td>
+</tr>
+<tr>
+<td>T7</td>
+<td>P1</td>
+<td>Regroupement administratif</td>
+<td><strong>Champ de regroupement spatial</strong> = <code>adm1_name</code>, puis export CSV</td>
+<td>Le CSV contient <code>boundary,period,label,count,value,start,end</code> avec des valeurs cohérentes par zone</td>
+</tr>
+<tr>
+<td>T8</td>
+<td>P1</td>
+<td>Couche virtuelle et symbologie</td>
+<td><strong>Couche frontière / géométrie</strong> = couche polygones, variables visuelles configurées dans la carte</td>
+<td>Une couche temporaire par période est produite avec <code>boundary</code>, <code>period</code>, <code>value</code>, <code>count</code> ; la palette et le renderer d'origine sont conservés ; la couche est retirée au changement de période</td>
+</tr>
+<tr>
+<td>T9</td>
+<td>P1</td>
+<td>Multi-sources et timeline liée</td>
+<td>Source « Cas » (count) et source « Décès » (sum sur <code>deaths</code>), même base de périodes</td>
+<td>Les deux sources sont filtrées simultanément par la timeline liée ; les totaux ne se mélangent pas</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>P1</td>
+<td>Comparaison inter-annuelle</td>
+<td>Mode « Comparer les années », années <code>2023, 2024, 2025</code>, référence <code>2024</code></td>
+<td>Les périodes comparables sont alignées, delta et % cohérents, valeurs absentes affichées <code>—</code></td>
+</tr>
+<tr>
+<td>T11</td>
+<td>P1</td>
+<td>Export CSV et décimales</td>
+<td>Export depuis la timeline, décimales 0 à 3</td>
+<td>Fichier <code>epi-aggregation.csv</code> ouvrable, séparateur et guillemets corrects, décimales respectées, accents conservés</td>
+</tr>
+<tr>
+<td>T12</td>
+<td>P1</td>
+<td>Performance</td>
+<td>Line-list anonymisée de taille représentative (à définir par le GIS Centre : par ex. 10 000, 50 000 puis 100 000 enregistrements)</td>
+<td>Temps d'agrégation, de filtre et d'animation mesuré et consigné ; comportement documenté au-delà de <code>pageSize: 10000</code></td>
+</tr>
+<tr>
+<td>T13</td>
+<td>P2</td>
+<td>Bilingue et présentation</td>
+<td>Locale EN puis FR ; changement des couleurs, de la taille de timeline</td>
+<td>Libellés traduits, couleurs et taille appliquées, mise en page non cassée</td>
+</tr>
+<tr>
+<td>T14</td>
+<td>P1</td>
+<td>Champ texte semaine (EpiWeek)</td>
+<td>Activer <strong>Afficher aussi les champs texte</strong>, sélectionner un champ contenant <code>2024-W01</code>, <code>Week 04-2025</code>, <code>2025-W04</code></td>
+<td>Les libellés sont normalisés en semaine ISO et agrégés ; l'avertissement de filtrage s'affiche dans le widget et dans le panneau Contenu ; aucune requête <code>DATE '…'</code> n'est envoyée</td>
+</tr>
+<tr>
+<td>T15b</td>
+<td>P2</td>
+<td>Dates illisibles</td>
+<td>Insérer des valeurs non interprétables et des dates impossibles (<code>31/02/2024</code>)</td>
+<td>Les lignes sont ignorées, comptées et signalées ; le compteur reste visible en mode compact ; aucune valeur inventée</td>
+</tr>
+<tr>
+<td>T15</td>
+<td>P2</td>
+<td>Convention des dates ambiguës</td>
+<td>Mêmes données en <code>jour/mois</code>, <code>mois/jour</code>, <code>automatique</code></td>
+<td>Le comportement suit le réglage ; une composante &gt; 12 lève l'ambiguïté</td>
+</tr>
+</tbody>
+</table>
+<h3 id="jeu-de-donnees-minimal-suggere">Jeu de données minimal suggéré</h3>
+<table>
+<thead>
+<tr>
+<th>case_id</th>
+<th>onset_date</th>
+<th>adm1_name</th>
+<th>status</th>
+<th style="text-align: right;">cases</th>
+<th style="text-align: right;">deaths</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2024-01-03</td>
+<td>Dakar</td>
+<td>Confirmed</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2024-01-05</td>
+<td>Dakar</td>
+<td>Probable</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2024-01-12</td>
+<td>Thiès</td>
+<td>Confirmed</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2024-01-22</td>
+<td>Dakar</td>
+<td>Confirmed</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>5</td>
+<td>2024-02-11</td>
+<td>Thiès</td>
+<td>Suspected</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>À compléter avec <strong>au moins trois années</strong> et plusieurs périodes par année, et avec une semaine manquante pour T6. Pour tester les libellés de semaine texte (F7 / écart E2), ajouter des lignes portant <code>Week 03-2025</code>, <code>2025-W04</code> ou <code>S01_2026</code> dans un <strong>champ date normalisé</strong> ou, après arbitrage de E2, dans la colonne texte correspondante.</p>
+<hr />
+<h2 id="10-criteres-de-decision-du-gis-centre">10. Critères de décision du GIS Centre</h2>
+<h3 id="101-validation">10.1 Validation</h3>
+<p>La version 2.0.0 peut être validée si, cumulativement :</p>
+<ul>
+<li><strong>100 % des tests P0 sont conformes</strong> (T1 à T5) ;</li>
+<li><strong>au moins 90 % des tests P1 sont conformes</strong> (T6 à T12) ;</li>
+<li>aucun défaut bloquant ni perte d'intégrité des données sources n'est constaté ;</li>
+<li>les écarts E1 à E3 sont corrigés (fait) et les écarts E4 à E6 sont traités ou explicitement acceptés par écrit avec une échéance ;</li>
+<li>les limites résiduelles du § 6.2 sont acceptées par écrit ;</li>
+<li>la performance observée en T12 est jugée compatible avec les volumes cibles du GIS Centre.</li>
+</ul>
+<h3 id="102-validation-avec-reserves">10.2 Validation avec réserves</h3>
+<p>Recevable si :</p>
+<ul>
+<li><strong>100 % des tests P0 sont conformes</strong> ;</li>
+<li>au moins 70 % des tests P1 sont conformes ;</li>
+<li>chaque défaut restant est <strong>non bloquant</strong>, dispose d'un contournement documenté et fait l'objet d'une action corrective avec responsable et échéance ;</li>
+<li>aucune anomalie d'intégrité de données (T2) ni de fuite d'information n'est constatée.</li>
+</ul>
+<h3 id="103-rejet">10.3 Rejet</h3>
+<p>Le rejet doit être prononcé si l'un des cas suivants est constaté :</p>
+<ul>
+<li>échec d'au moins un test P0 (T1 à T5) ;</li>
+<li>modification, même involontaire, des données sources (T2) ;</li>
+<li>résultat d'agrégation temporelle incorrect non corrigeable dans le pilote (semaine ISO ou bornes de période erronées) ;</li>
+<li>performance incompatible avec les volumes cibles, sans voie de correction identifiée ;</li>
+<li>incompatibilité de build avec la version d'Experience Builder retenue par le GIS Centre ;</li>
+<li>moins de 70 % des tests P1 conformes.</li>
+</ul>
+<p>Tout rejet doit mentionner l'identifiant du test, la preuve (capture, journal console, configuration) et la condition de réexamen.</p>
+<hr />
+<h2 id="11-livrables-attendus-du-testeur">11. Livrables attendus du testeur</h2>
+<p>Pour chaque test exécuté, consigner :</p>
+<pre><code class="language-text">Test (T1…T15) :
+Pays / mission :
+Utilisateur testeur :
+Version Experience Builder :
+Version Portal :
+Type et taille de la source :
+Champ temporel :
+Champ de regroupement spatial :
+Période choisie :
+Statistique :
+Navigateur et version :
+Résultat : conforme / non conforme / non testé
+Écart constaté :
+Erreur console (texte brut) :
+Capture d'écran anonymisée :
+Contournement disponible :
+Priorité : P0 / P1 / P2
+</code></pre>
+<p><strong>Règles de sécurité.</strong> Ne jamais joindre de données nominatives, de coordonnées individuelles, de secrets OAuth ou de jetons d'accès. Anonymiser les captures d'écran (noms de patients, identifiants, URL de services sensibles).</p>
+<hr />
+<h2 id="12-planning-propose-et-roles">12. Planning proposé et rôles</h2>
+<h3 id="121-planning-indicatif">12.1 Planning indicatif</h3>
+<table>
+<thead>
+<tr>
+<th>Étape</th>
+<th>Date proposée</th>
+<th>Responsable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Envoi du dossier révisé (écarts E1–E3 corrigés), revue de la branche de test et confirmation de la version ExB</td>
+<td>16 – 18 septembre 2026</td>
+<td>Émetteur + GIS Centre</td>
+</tr>
+<tr>
+<td>Mise en place de l'environnement (ExB, Node 20, OAuth, copie du widget)</td>
+<td>17 – 21 septembre 2026</td>
+<td>GIS Centre / administrateur Portal</td>
+</tr>
+<tr>
+<td>Préparation du jeu de test anonymisé (3 années, zone manquante, volumes T12)</td>
+<td>21 – 24 septembre 2026</td>
+<td>Référent surveillance + GIS Centre</td>
+</tr>
+<tr>
+<td>Exécution des tests T1 à T15 et journal des défauts</td>
+<td>24 septembre – 2 octobre 2026</td>
+<td>Testeurs GIS Centre</td>
+</tr>
+<tr>
+<td>Consolidation, corrections et nouvelle passe ciblée si réserves</td>
+<td>2 – 6 octobre 2026</td>
+<td>Émetteur + GIS Centre</td>
+</tr>
+<tr>
+<td><strong>Décision formelle</strong> (validation / réserves / rejet)</td>
+<td><strong>à partir du 7 octobre 2026</strong></td>
+<td>Comité de validation</td>
+</tr>
+<tr>
+<td>Clôture, plan d'action et publication du retour</td>
+<td>9 octobre 2026</td>
+<td>Émetteur</td>
+</tr>
+</tbody>
+</table>
+<p>Ce calendrier est une proposition : les dates peuvent être ajustées par le GIS Centre selon ses contraintes d'exploitation.</p>
+<h3 id="122-roles">12.2 Rôles</h3>
+<table>
+<thead>
+<tr>
+<th>Rôle</th>
+<th>Responsabilité</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Émetteur (équipe de développement)</td>
+<td>Fournir la version figée et son archive, corriger les défauts confirmés, expliquer les écarts et les correctifs apportés</td>
+</tr>
+<tr>
+<td>Référent GIS Centre</td>
+<td>Cadrer le pilote, valider le jeu de test, arbitrer les priorités, consolider le rapport</td>
+</tr>
+<tr>
+<td>Testeur(s) GIS</td>
+<td>Exécuter les tests, documenter les écarts, joindre les preuves</td>
+</tr>
+<tr>
+<td>Référent surveillance épidémiologique</td>
+<td>Valider la pertinence métier : définitions de période, semaine épidémiologique, cohérence des agrégats</td>
+</tr>
+<tr>
+<td>Cartographe</td>
+<td>Valider le comportement carte : renderer, variables visuelles, échelle dynamique, couche virtuelle</td>
+</tr>
+<tr>
+<td>Administrateur Portal</td>
+<td>OAuth, droits de lecture, proxy, comptes de test</td>
+</tr>
+<tr>
+<td>Comité de validation</td>
+<td>Prononcer la décision et la consigner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-risques-et-limites-connues">13. Risques et limites connues</h2>
+<table>
+<thead>
+<tr>
+<th>Risque</th>
+<th>Impact</th>
+<th>Mesure de maîtrise proposée</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Calcul côté navigateur sur une grosse line-list (<code>outFields: ['*']</code>, <code>pageSize: 10000</code>)</td>
+<td>Lenteur, mémoire, plafond silencieux au-delà de 10 000 enregistrements par requête</td>
+<td>Mesurer en T12 avant tout déploiement ; prévoir une pré-agrégation serveur pour les gros volumes</td>
+</tr>
+<tr>
+<td>Aucun test automatisé ni intégration continue</td>
+<td>Régressions difficiles à détecter, correction non vérifiée</td>
+<td>Journal des défauts précis et reproductibles ; envisager l'ajout d'une suite de tests sur <code>aggregation.ts</code> (fonctions pures, sans dépendance ExB)</td>
+</tr>
+<tr>
+<td>Corrections vérifiées par compilation statique uniquement</td>
+<td>Un défaut de rendu ou de comportement ne serait pas détecté avant la campagne</td>
+<td>Exécuter T1 avant tout autre test et consigner les erreurs de console</td>
+</tr>
+<tr>
+<td>Champ temporel de type texte non filtrable (limite structurelle)</td>
+<td>Attente d'un filtrage carte qui ne peut pas fonctionner</td>
+<td>Le widget affiche l'avertissement ; documenter le choix dans le manuel (§ 3) et préparer un champ Date natif si le filtrage est requis</td>
+</tr>
+<tr>
+<td>Widget livré sans tag Git</td>
+<td>Difficulté à identifier l'artefact validé</td>
+<td>Taguer la version validée par le GIS Centre à l'issue du pilote</td>
+</tr>
+<tr>
+<td>Valeurs de zone incohérentes entre la line-list et la couche frontière</td>
+<td>Couche virtuelle incomplète ou vide</td>
+<td>Contrôler les libellés et les codes administratifs avant T7/T8 ; documenter la table de correspondance</td>
+</tr>
+<tr>
+<td>Renderer cartographique modifié ou écrasé</td>
+<td>Perte de la charte cartographique</td>
+<td>Vérifier en T8 que le renderer et la palette restent inchangés après plusieurs périodes</td>
+</tr>
+<tr>
+<td>Filtre non propagé aux composants (vues de données séparées)</td>
+<td>Timeline sans effet visible sur la carte ou les indicateurs</td>
+<td>Utiliser la même source pour tous les composants, ou configurer une action de données dans Experience Builder</td>
+</tr>
+<tr>
+<td>Dates texte hétérogènes dans la source</td>
+<td>Dates illisibles ignorées, agrégats sous-estimés</td>
+<td>Publier le champ date en <code>esriFieldTypeDate</code> ; contrôler le compteur de dates ignorées avant publication</td>
+</tr>
+<tr>
+<td>Taux épidémiologiques attendus par les utilisateurs</td>
+<td>Interprétation erronée des valeurs affichées</td>
+<td>Rappeler que le widget n'affiche pas de taux ; préparer les dénominateurs dans une couche analytique</td>
+</tr>
+<tr>
+<td>Ré-identification sur petits effectifs</td>
+<td>Risque de protection des données</td>
+<td>Définir des règles de seuil dans l'expérience et les données de diffusion</td>
+</tr>
+<tr>
+<td>Dépendance aux versions ExB et Node</td>
+<td>Échec d'installation</td>
+<td>Figer ExB 1.15 / Node 20 LTS pour le pilote et documenter la procédure d'installation (§ 8)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="14-formulaire-de-decision-a-completer-et-retourner">14. Formulaire de décision (à compléter et retourner)</h2>
+<pre><code class="language-text">Dossier        : Epi Aggregator 2.0 — proposition de test et de validation (révision 2)
+Version testée : 2.0.0 — commit testé : ______________________ (git log -1 --oneline)
+Environnement  : Experience Builder ______ / Node ______ / Portal ______
+Période de test: du __________ au __________
+Testeurs       : ______________________________________________
+Jeu de données : type ____________ / taille ____________ / anonymisé : oui / non
+
+RÉSULTATS
+  Tests P0 conformes   : ____ / 5
+  Tests P1 conformes   : ____ / 9
+  Tests P2 conformes   : ____ / 3
+  Défauts bloquants    : ____
+  Défauts majeurs      : ____
+  Défauts mineurs      : ____
+
+DÉCISION
+  [ ] VALIDATION
+  [ ] VALIDATION AVEC RÉSERVES — réserves et échéances :
+      ________________________________________________________________
+  [ ] REJET — motif(s), test(s) concerné(s) et condition de réexamen :
+      ________________________________________________________________
+
+Écarts E1–E3 (corrigés, à confirmer par les tests) : confirmés / non confirmés
+      ________________________________________________________________
+Écarts E4–E6 et limites résiduelles (§ 6.2) : acceptés / à corriger (préciser et daté)
+      ________________________________________________________________
+
+Observations :
+      ________________________________________________________________
+
+Nom et fonction : ______________________  Date : __________
+Signature       : ______________________
+</code></pre>
+<hr />
+<h2 id="15-annexes">15. Annexes</h2>
+<h3 id="annexe-a-checklist-express">Annexe A — Checklist express</h3>
+<ul>
+<li>[ ] Commit testé relevé (<code>git log -1 --oneline</code>) et reporté dans la fiche de retour</li>
+<li>[ ] Branche de test à jour (<code>arena/01a0aaf8-exb-epi-widgets</code>)</li>
+<li>[ ] Environnement ExB / Node 20 / Portal opérationnel</li>
+<li>[ ] Widget copié et compilé sans erreur bloquante (T1)</li>
+<li>[ ] Jeu de test anonymisé, 3 années, zone manquante prévue (T6), jeux de volume T12 prêts</li>
+<li>[ ] Correctifs E1–E3 confirmés en exécution (T5b, T14, T7, T8)</li>
+<li>[ ] Écarts E4–E6 et limites résiduelles arbitrés ou consignés</li>
+<li>[ ] Tests T1 à T15 exécutés, résultats et preuves consignés</li>
+<li>[ ] Intégrité des données sources contrôlée avant/après (T2)</li>
+<li>[ ] Formulaire de décision complété et signé</li>
+</ul>
+<h3 id="annexe-b-structure-du-depot">Annexe B — Structure du dépôt</h3>
+<pre><code class="language-text">.
++-- README.md                              Description technique et installation
++-- MANUEL_UTILISATION.md                  Manuel utilisateur GIS et surveillance
++-- GUIDE_TRANSFERT_TEST_GIS_CENTRE.md     Protocole de test détaillé (scénarios A à F)
++-- DOSSIER_PROPOSITION_GIS_CENTRE.md      Présent dossier de proposition et de décision
++-- tools/
+|   +-- README.md                          Mode d'emploi du lanceur Windows
+|   +-- Start-ExperienceBuilder.ps1        Lanceur (Node 20, npm ci, copie du widget)
+|   +-- Start-ExperienceBuilder.bat        Point d'entrée double-clic
++-- widgets/
+    +-- epi-aggregator/
+        +-- manifest.json                  Version 2.0.0, locales, dépendances
+        +-- config.json                    Valeurs par défaut du widget
+        +-- icon.svg                       Icône
+        +-- src/
+            +-- config.ts                  Types de configuration
+            +-- runtime/
+            |   +-- widget.tsx             Interface, requête, filtre, timeline, carte
+            |   +-- aggregation.ts         Moteur de dates et d'agrégation (sans dépendance ExB)
+            |   +-- comparison.ts          Alignement des périodes entre années
+            |   +-- spatialAggregation.ts  Agrégats période × zone
+            |   +-- virtualLayer.ts        Jointure agrégats &lt;-&gt; géométries frontières
+            |   +-- style.css              Styles de la timeline et des synthèses
+            |   +-- icon.svg
+            +-- setting/
+                +-- setting.tsx            Panneau de configuration
+                +-- style.css
+</code></pre>
+<h3 id="annexe-c-documents-lies">Annexe C — Documents liés</h3>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>README.md</code></td>
+<td>Description technique, installation, notes GIS et limites</td>
+</tr>
+<tr>
+<td><code>MANUEL_UTILISATION.md</code></td>
+<td>Manuel utilisateur complet : configuration, statistiques, périodes, modes de filtre, dépannage</td>
+</tr>
+<tr>
+<td><code>GUIDE_TRANSFERT_TEST_GIS_CENTRE.md</code></td>
+<td>Protocole détaillé des scénarios A à F, pré-requis, fiche de retour d'expérience</td>
+</tr>
+<tr>
+<td><code>tools/README.md</code></td>
+<td>Mode d'emploi du lanceur Windows</td>
+</tr>
+</tbody>
+</table>
+<h3 id="annexe-d-lexique">Annexe D — Lexique</h3>
+<table>
+<thead>
+<tr>
+<th>Terme</th>
+<th>Définition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Line-list</strong></td>
+<td>Tableau de cas individuels (une ligne par cas) utilisé en surveillance épidémiologique</td>
+</tr>
+<tr>
+<td><strong>Semaine ISO</strong></td>
+<td>Semaine normalisée du lundi au dimanche, numérotée <code>S01</code> à <code>S53</code> selon la norme ISO 8601</td>
+</tr>
+<tr>
+<td><strong>Semaine épidémiologique relative</strong></td>
+<td>Numérotation <code>EPI W1, W2, …</code> comptée depuis la date de début de l'épidémie</td>
+</tr>
+<tr>
+<td><strong>Filtre progressif / cumulatif</strong></td>
+<td>Restriction de la source à toutes les périodes depuis la première jusqu'à la période active</td>
+</tr>
+<tr>
+<td><strong>Période active</strong></td>
+<td>Période sélectionnée dans la timeline, qui détermine le filtre publié aux composants connectés</td>
+</tr>
+<tr>
+<td><strong>Couche virtuelle agrégée</strong></td>
+<td>Couche temporaire créée côté client, joignant les agrégats période × zone aux géométries d'une couche frontière, sans modifier les données sources</td>
+</tr>
+<tr>
+<td><strong>Renderer</strong></td>
+<td>Ensemble des règles de symbologie configurées dans la carte Experience Builder</td>
+</tr>
+<tr>
+<td><strong><code>definitionExpression</code></strong></td>
+<td>Clause de filtre appliquée à une couche dans la carte Experience Builder</td>
+</tr>
+</tbody>
+</table>
+<h3 id="annexe-e-retour-et-support">Annexe E — Retour et support</h3>
+<p>Pour tout problème, transmettre : la version du widget, la version d'Experience Builder, l'identifiant du scénario de test, la structure des champs <strong>sans données sensibles</strong>, l'erreur brute de la console, une capture d'écran anonymisée, ainsi que la fréquence et la gravité du problème.</p>
+<hr />
+<p><em>Fin du dossier. La décision est attendue via le formulaire du § 14 ; les écarts du § 6 doivent être arbitrés avant le démarrage des tests.</em></p></body></html>

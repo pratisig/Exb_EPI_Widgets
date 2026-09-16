@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang='fr'><head><meta charset='utf-8'><title>Epi Aggregator — Manuel utilisateur GIS et surveillance</title><style>
+@page { size: A4; margin: 1.6cm 1.4cm; }
+body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; color: #1f2933; line-height: 1.45; }
+h1 { font-size: 18pt; color: #0b4f83; border-bottom: 2px solid #0b4f83; padding-bottom: 6px; }
+h2 { font-size: 13pt; color: #1261a0; margin-top: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; }
+h3 { font-size: 11pt; color: #1d4f6e; margin-top: 12px; }
+h4 { font-size: 10pt; color: #1d4f6e; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; font-size: 8pt; }
+th, td { border: 1px solid #b8c4d0; padding: 4px 5px; text-align: left; vertical-align: top; word-wrap: break-word; }
+th { background: #eaf4fa; color: #0b4f83; }
+code, pre { font-family: Courier, monospace; font-size: 8pt; background: #f4f6f8; }
+pre { border: 1px solid #dde3e9; padding: 6px; white-space: pre-wrap; }
+blockquote { border-left: 3px solid #1261a0; margin: 6px 0; padding: 2px 8px; background: #f5fafd; }
+ul, ol { margin: 4px 0 8px 18px; }
+li { margin-bottom: 2px; }
+hr { border: 0; border-top: 1px solid #cbd5e1; margin: 14px 0; }
+</style></head><body><h1 id="epi-aggregator-manuel-utilisateur-gis-et-surveillance">Epi Aggregator — Manuel utilisateur GIS et surveillance</h1>
+<h2 id="1-presentation">1. Présentation</h2>
+<p><strong>Epi Aggregator</strong> est un widget personnalisé pour ArcGIS Experience Builder Developer Edition. Il transforme une ou plusieurs line-lists en séries temporelles et permet de piloter les cartes, graphiques, listes, tableaux et indicateurs d'une expérience.</p>
+<p>Le widget ne modifie pas la table source. Il lit les enregistrements, normalise les dates pour l'agrégation, calcule une statistique par période et applique, sur demande, une fenêtre temporelle à la source.</p>
+<h2 id="2-ce-que-le-widget-permet-de-faire">2. Ce que le widget permet de faire</h2>
+<ul>
+<li>choisir plusieurs Feature Layers ou tables line-list ;</li>
+<li>configurer chaque source indépendamment ;</li>
+<li>détecter les champs Date et numériques depuis le schéma ArcGIS ;</li>
+<li>utiliser un champ texte de semaine (EpiWeek) comme champ temporel ;</li>
+<li>agréger par semaine ISO, semaine relative à l'épidémie, mois, trimestre ou année ;</li>
+<li>compter, sommer, calculer une moyenne ou une médiane ;</li>
+<li>calculer minimum et maximum sur des nombres ou des dates ;</li>
+<li>récupérer la première ou la dernière valeur d'un champ texte ;</li>
+<li>calculer le nombre de valeurs distinctes ;</li>
+<li>afficher la période active en haut de chaque source ;</li>
+<li>afficher le nombre total d'enregistrements, le pic et l'étiquette de la période du pic ;</li>
+<li>lire une timeline avec trois vitesses ;</li>
+<li>piloter chaque source depuis sa propre timeline, et toutes les sources depuis la timeline liée ;</li>
+<li>choisir entre filtre unique, filtre progressif ou absence de filtre ;</li>
+<li>afficher les valeurs en brut ou en cumulé ;</li>
+<li>replier la liste des périodes pour conserver un widget compact ;</li>
+<li>exporter les périodes agrégées en CSV, globalement ou par zone ;</li>
+<li>regrouper les agrégats par champ administratif et les joindre à une couche frontière ;</li>
+<li>comparer plusieurs années période par période ;</li>
+<li>personnaliser la couleur principale du widget.</li>
+</ul>
+<h2 id="3-preparer-les-donnees">3. Préparer les données</h2>
+<h3 id="champs-recommandes">Champs recommandés</h3>
+<p>Une line-list de surveillance devrait idéalement contenir :</p>
+<ul>
+<li>un identifiant unique (<code>case_id</code>) ;</li>
+<li>un vrai champ Date de référence (<code>onset_date</code>, <code>report_date</code>, <code>specimen_date</code>) ;</li>
+<li>un statut de cas (<code>confirmed</code>, <code>probable</code>, <code>suspected</code>, <code>discarded</code>) ;</li>
+<li>une localisation ou un code géographique ;</li>
+<li>les mesures utiles (<code>deaths</code>, <code>age</code>, <code>population</code>, <code>dose_count</code>).</li>
+</ul>
+<h3 id="champ-date-ou-champ-semaine">Champ Date ou champ semaine</h3>
+<p>Le champ temporel peut être de deux natures.</p>
+<p><strong>Champ Date natif (<code>esriFieldTypeDate</code>) — recommandé.</strong> C'est la seule configuration qui permet à la fois l'agrégation <strong>et</strong> le filtrage de la source, de la carte et des composants connectés. Les dates locales saisies dans le widget restent prises en charge dans les formats ISO, timestamps ArcGIS, dates Excel et formats jour/mois ou mois/jour.</p>
+<p><strong>Champ texte de semaine (EpiWeek).</strong> Un champ texte contenant des libellés tels que <code>Week 01-2026</code>, <code>2026-W01</code>, <code>W01-2026</code>, <code>S01_2026</code> ou <code>2026-W04</code> peut être sélectionné comme champ temporel : le widget les normalise en semaine ISO. Dans ce cas :</p>
+<ul>
+<li>l'agrégation, la timeline, les indicateurs et l'export CSV fonctionnent normalement ;</li>
+<li><strong>le filtrage de la source, de la carte et des composants connectés est désactivé</strong>, car ArcGIS ne peut pas comparer un champ texte à une borne <code>DATE '…'</code>. Un avertissement s'affiche dans le widget et dans le panneau Contenu.</li>
+</ul>
+<p>Pour disposer du filtrage, publier le champ date comme <code>esriFieldTypeDate</code> ou créer dans ArcGIS un champ Date normalisé à partir du champ texte.</p>
+<p>Par défaut, le sélecteur de champ temporel ne propose que les champs Date. Les champs texte apparaissent après activation de l'option <strong>Afficher aussi les champs texte (semaines EpiWeek…)</strong> sous le sélecteur.</p>
+<h3 id="controles-avant-analyse">Contrôles avant analyse</h3>
+<p>Avant publication :</p>
+<ol>
+<li>rechercher les dates futures ou antérieures au début de la surveillance ;</li>
+<li>documenter la date utilisée : début des symptômes, notification, prélèvement ou validation ;</li>
+<li>rechercher les doublons et notifications répétées ;</li>
+<li>contrôler les valeurs nulles et les valeurs non numériques ;</li>
+<li>vérifier le fuseau horaire du service ;</li>
+<li>conserver une date d'extraction dans l'expérience.</li>
+</ol>
+<h2 id="4-ajouter-et-configurer-le-widget">4. Ajouter et configurer le widget</h2>
+<ol>
+<li>Ajouter <strong>Epi Aggregator</strong> à l'expérience.</li>
+<li>Ouvrir le panneau <strong>Contenu</strong>.</li>
+<li>Sélectionner une ou plusieurs sources line-list.</li>
+<li>Une section de configuration est créée pour chaque source.</li>
+<li>Pour chaque source, sélectionner le champ temporel dans <strong>Champ date ou semaine</strong>.</li>
+<li>Choisir la statistique.</li>
+<li>Si nécessaire, choisir le champ de mesure dans la liste filtrée.</li>
+<li>Choisir la période et le mode de semaine.</li>
+<li>Choisir le mode d'affichage sur la page.</li>
+<li>Enregistrer l'expérience.</li>
+</ol>
+<h2 id="5-configuration-de-plusieurs-sources">5. Configuration de plusieurs sources</h2>
+<p>Chaque source possède sa propre configuration et son propre résultat. Une source ajoutée mais sans champ temporel configuré reste masquée dans le panneau d'analyse ; elle apparaît uniquement dans le panneau Contenu jusqu'à sa configuration.</p>
+<p>Exemple :</p>
+<pre><code class="language-text">Source Choléra
+  Date       : onset_date
+  Statistique: Count
+  Période    : Semaine ISO
+  Filtre     : Progressif
+
+Source Décès
+  Date       : report_date
+  Statistique: Sum
+  Mesure     : deaths
+  Période    : Mois
+  Filtre     : Une seule période
+</code></pre>
+<p>Les indicateurs, périodes et timelines restent séparés. Le total de la source Choléra ne se mélange pas avec le total de la source Décès.</p>
+<h2 id="6-choisir-une-statistique">6. Choisir une statistique</h2>
+<h3 id="count">Count</h3>
+<p>Compte les enregistrements dont la date est valide. Aucun champ de mesure n'est nécessaire.</p>
+<p>L'indicateur bleu est libellé <strong>Nombre total d'enregistrements</strong>. Il correspond à la somme des enregistrements valides de la source, et non uniquement à la période active.</p>
+<h3 id="sum">Sum</h3>
+<p>Disponible uniquement pour les champs numériques. Exemple : somme des décès ou des doses administrées.</p>
+<h3 id="mean">Mean</h3>
+<p>Moyenne arithmétique d'un champ numérique. Les valeurs vides et non numériques sont ignorées.</p>
+<h3 id="median">Median</h3>
+<p>Médiane d'un champ numérique. Elle est préférable à la moyenne lorsque des valeurs extrêmes sont présentes.</p>
+<h3 id="min-et-max">Min et Max</h3>
+<p>Ces deux statistiques acceptent :</p>
+<ul>
+<li>un champ numérique ;</li>
+<li>un champ Date.</li>
+</ul>
+<p>Sur une date, <code>Min</code> retourne la date la plus ancienne et <code>Max</code> la date la plus récente.</p>
+<h3 id="first-et-last">First et Last</h3>
+<p>Ces statistiques sont réservées aux champs texte, par exemple <code>status</code>, <code>district</code>, <code>facility</code> ou <code>classification</code>. Elles suivent l'ordre retourné par le service et nécessitent donc un ordre de requête documenté.</p>
+<h3 id="distinct">Distinct</h3>
+<p>Compte les valeurs différentes d'un champ texte ou numérique. Pour compter des patients uniques, utiliser un identifiant préparé pour l'analyse et contrôler les doublons de visites.</p>
+<h2 id="7-periodes-disponibles">7. Périodes disponibles</h2>
+<h3 id="semaine-iso">Semaine ISO</h3>
+<p>Semaine calendaire commençant le lundi. Les labels sont par exemple :</p>
+<pre><code class="language-text">2025 S01
+2025 S02
+</code></pre>
+<p>Certaines années ont une semaine 53.</p>
+<h3 id="semaine-relative-a-lepidemie">Semaine relative à l'épidémie</h3>
+<p>Après saisie de la date de début, le widget affiche :</p>
+<pre><code class="language-text">EPI W1
+EPI W2
+EPI W3
+</code></pre>
+<p>Cette option permet de comparer des flambées dont les dates de début sont différentes.</p>
+<h3 id="mois-trimestre-et-annee">Mois, trimestre et année</h3>
+<p>Lorsque <strong>Créer des périodes à zéro</strong> est activé, le widget complète automatiquement les trous entre la première et la dernière période. Une semaine sans enregistrement apparaît alors avec une valeur zéro, ce qui évite de confondre absence de notification et absence de période.</p>
+<p>Les labels sont par exemple :</p>
+<pre><code class="language-text">2025-01
+2025 T1
+2025
+</code></pre>
+<p>Le widget réinitialise le filtre précédent avant de recalculer une nouvelle agrégation. Un filtre hebdomadaire ne peut donc pas limiter par erreur les résultats mensuels, trimestriels ou annuels.</p>
+<h2 id="8-modes-de-filtre-sur-la-page">8. Modes de filtre sur la page</h2>
+<h3 id="progressif-cumulatif">Progressif / cumulatif</h3>
+<p>Par défaut, la période sélectionnée affiche toutes les données depuis la première période jusqu'à la période active.</p>
+<p>Si l'utilisateur sélectionne <code>2025 S04</code>, la carte conserve :</p>
+<pre><code class="language-text">S01 + S02 + S03 + S04
+</code></pre>
+<h3 id="une-seule-periode">Une seule période</h3>
+<p>Seule la fenêtre de la période active est filtrée.</p>
+<p>Pour <code>2025 S04</code>, seule la période S04 est affichée.</p>
+<h3 id="toutes-les-donnees">Toutes les données</h3>
+<p>La timeline et les valeurs du widget restent disponibles, mais la carte, la table et les autres composants conservent toutes les données de la source. Dans ce mode, les boutons de période et le curseur restent visibles mais ne modifient pas la source.</p>
+<h2 id="9-les-timelines">9. Les timelines</h2>
+<p>Le widget comporte deux niveaux de commande.</p>
+<h3 id="timeline-liee-au-dessus-des-sources">Timeline liée (au-dessus des sources)</h3>
+<p>Lorsque plusieurs sources utilisent la même base de périodes, le widget affiche une <strong>Timeline liée</strong>. Elle pilote toutes les sources qui possèdent la même clé de période.</p>
+<p>Par exemple, si toutes les sources produisent <code>2025 S01</code>, <code>2025 S02</code> et <code>2025 S03</code>, déplacer le curseur maître vers <code>2025 S03</code> actualise les filtres de chaque source. Les sources configurées en mode <strong>Toutes les données</strong> restent volontairement non filtrées.</p>
+<p>Pour une synchronisation fiable, utiliser la même agrégation et la même base de semaine pour les sources à comparer.</p>
+<p>La timeline liée propose : première période, reculer, lecture/pause, curseur, avancer, dernière période, trois vitesses (lent, normal, rapide) et l'export CSV. Elle affiche également la plage couverte et, lorsque les périodes produisent des valeurs numériques, le total cumulé de la série.</p>
+<h3 id="timeline-de-chaque-source">Timeline de chaque source</h3>
+<p>Chaque source conserve sa propre timeline, ce qui permet de piloter une source sans déplacer les autres lorsque leurs périodes ne se recouvrent pas.</p>
+<ul>
+<li>Le curseur permet de passer directement d'une période à l'autre.</li>
+<li>Les boutons première, précédente, suivante et dernière période facilite la navigation.</li>
+<li><strong>Lire</strong> avance d'une période à l'autre ; <strong>Arrêter</strong> suspend la lecture.</li>
+<li><strong>Lent</strong>, <strong>Normal</strong> et <strong>Rapide</strong> changent la vitesse.</li>
+<li><strong>Cumulé</strong> affiche la valeur cumulée lorsque la statistique est numérique ; <strong>Brut</strong> revient à la valeur de la période. Le bouton est désactivé lorsque la statistique n'est pas numérique (<code>First</code>, <code>Last</code>, <code>Distinct</code>).</li>
+<li>Le bouton <strong>Afficher les périodes / Masquer les périodes</strong> réduit la liste des boutons, sans désactiver le curseur.</li>
+<li>Les bornes de la série sont affichées sous le curseur.</li>
+</ul>
+<p>Lorsque la source contient plus de douze périodes, la liste se replie automatiquement pour éviter un widget trop long. La timeline continue de fonctionner lorsque la liste est repliée.</p>
+<h2 id="10-mode-timeline-uniquement">10. Mode timeline uniquement</h2>
+<p>L'affichage se règle dans <strong>Affichage</strong> :</p>
+<ul>
+<li><strong>Timeline uniquement</strong> (par défaut) : les cartes de synthèse par source sont masquées pour garder un widget compact ;</li>
+<li><strong>Timeline et détails des sources</strong> : chaque source affiche sa carte complète (indicateurs, timeline, comparaison, filtre actif).</li>
+</ul>
+<p>Dans les deux modes, les sources configurées continuent d'être filtrées et la timeline pilote la carte et les composants connectés. Le compteur de dates illisibles reste visible même en mode compact.</p>
+<p>Avec <strong>une seule source</strong> configurée, la timeline liée suffit à piloter l'ensemble : en mode compact, la timeline de source n'est donc pas répétée. Avec <strong>plusieurs sources</strong>, chaque source conserve sa timeline compacte afin de rester pilotable individuellement.</p>
+<h2 id="11-indicateurs-affiches">11. Indicateurs affichés</h2>
+<p>Pour chaque source :</p>
+<ul>
+<li><strong>Nombre total d'enregistrements</strong> : total des enregistrements avec une date valide ;</li>
+<li><strong>Pic</strong> : valeur maximale observée selon la statistique ;</li>
+<li>étiquette de la période du pic, par exemple <code>2025 S12</code> ;</li>
+<li>nombre de périodes générées ;</li>
+<li><strong>Période active</strong> ou <strong>Total cumulé</strong>, selon l'état du bouton Cumulé ;</li>
+<li>nombre de dates invalides ignorées ;</li>
+<li>nombre d'agrégats zone × période lorsque le regroupement spatial est configuré.</li>
+</ul>
+<p>Pour <code>First</code>, <code>Last</code> et les mesures textuelles, le pic numérique n'est pas calculé et est remplacé par un tiret.</p>
+<h2 id="12-interaction-avec-les-composants-de-la-page">12. Interaction avec les composants de la page</h2>
+<p>Connecter les cartes, graphiques, tables, listes et indicateurs à la même source de données que celle configurée dans le widget.</p>
+<p>Lorsqu'une période est sélectionnée, le widget applique une requête temporelle à la source. En mode progressif :</p>
+<pre><code class="language-sql">date_field &gt;= début_de_la_première_période
+AND date_field &lt; fin_de_la_période_active
+</code></pre>
+<p>En mode période unique :</p>
+<pre><code class="language-sql">date_field &gt;= début_de_la_période_active
+AND date_field &lt; fin_de_la_période_active
+</code></pre>
+<p>En mode sans filtre, la requête revient à l'ensemble des données.</p>
+<p>Si le champ temporel est un champ texte de semaine, aucune requête temporelle n'est appliquée (voir § 3).</p>
+<p>Le comportement exact dépend de la version Experience Builder et de la manière dont les composants partagent la source. Tester l'expérience avec une carte, un tableau et un indicateur avant publication.</p>
+<h2 id="13-synchronisation-avec-la-carte">13. Synchronisation avec la carte</h2>
+<p>Le widget ne choisit pas le type de rendu cartographique. Les cercles proportionnels, les couleurs graduées et les plages de classes restent configurés dans la carte Experience Builder. Dans le widget, seul le mode de rééchelle dynamique ou fixe peut être activé.</p>
+<p>Le widget peut piloter une carte sélectionnée dans le panneau Contenu : il applique la période active aux couches liées lorsque leur source possède le même champ temporel et la même clé de période. Il peut aussi demander une rééchelle dynamique des variables visuelles déjà configurées dans le renderer de la couche. Il ne remplace pas le renderer et ne modifie pas la palette choisie par le cartographe.</p>
+<p>Pour lier une couche, sélectionner la même source dans la carte et dans Epi Aggregator, utiliser le même champ Date et la même base d'agrégation, puis sélectionner la carte dans <strong>Carte à piloter</strong>.</p>
+<h2 id="14-couleur">14. Couleur</h2>
+<p>Le paramètre <strong>Couleur principale</strong> personnalise :</p>
+<ul>
+<li>l'indicateur total ;</li>
+<li>le titre de la source ;</li>
+<li>la période active ;</li>
+<li>les éléments sélectionnés.</li>
+</ul>
+<p>La couleur par défaut est <code>#1261a0</code>. <strong>Couleur de la ligne timeline</strong> règle séparément la teinte de la timeline liée et <strong>Taille de la timeline</strong> son encombrement (petite, moyenne, grande).</p>
+<h2 id="15-depannage">15. Dépannage</h2>
+<h3 id="aucun-champ-date-detecte">Aucun champ Date détecté</h3>
+<p>Vérifier que le champ est réellement de type Date dans la Feature Layer et non un champ texte. Vérifier également les droits de lecture du service et attendre le chargement du schéma. Pour utiliser malgré tout un champ texte de semaine, activer <strong>Afficher aussi les champs texte</strong>.</p>
+<h3 id="le-widget-indique-que-le-filtrage-est-desactive">Le widget indique que le filtrage est désactivé</h3>
+<p>Le champ temporel sélectionné est un champ texte. L'agrégation et la timeline restent valides, mais le filtre de la source nécessite un champ Date natif. Voir § 3.</p>
+<h3 id="aucun-champ-numerique-detecte">Aucun champ numérique détecté</h3>
+<p>Vérifier que le champ est de type Integer, BigInteger, Single, Double ou équivalent. Les nombres stockés comme texte ne sont pas proposés comme mesures numériques ; les normaliser dans la source.</p>
+<h3 id="une-seule-annee-ou-periode-apparait">Une seule année ou période apparaît</h3>
+<p>Réinitialiser le widget, vérifier le mode d'affichage et changer d'agrégation. La version actuelle efface le filtre de timeline avant chaque recalcul. Si le problème persiste, vérifier qu'une vue de données ou un filtre externe ne limite pas la source.</p>
+<h3 id="la-timeline-ne-filtre-pas-la-carte">La timeline ne filtre pas la carte</h3>
+<p>Vérifier que la carte utilise la même source, que le champ est un vrai champ Date et que le service autorise les requêtes. Vérifier aussi que la source n'est pas en mode <strong>Toutes les données</strong>. Pour les vues de données séparées, configurer une action de données ou une source partagée.</p>
+<h3 id="les-valeurs-numeriques-sont-nulles">Les valeurs numériques sont nulles</h3>
+<p>Vérifier que le champ mesure est sélectionné, qu'il est numérique et que ses valeurs ne contiennent pas uniquement des textes ou des valeurs vides.</p>
+<h3 id="trop-de-periodes">Trop de périodes</h3>
+<p>Utiliser <strong>Masquer les périodes</strong>. La timeline continue de fonctionner et la période active reste affichée en haut.</p>
+<h2 id="16-export">16. Export</h2>
+<p>Le bouton <strong>CSV</strong> de la timeline télécharge les périodes actuellement agrégées avec : la clé, le label, le nombre d'enregistrements, la valeur, le début et la fin de chaque période. Lorsqu'un champ de regroupement spatial est configuré, l'export contient en plus la zone :</p>
+<pre><code class="language-text">boundary,period,label,count,value,start,end
+</code></pre>
+<p>Cet export est destiné au contrôle, à la revue de situation et à la réutilisation analytique.</p>
+<h2 id="17-regroupement-spatial">17. Regroupement spatial</h2>
+<p>Chaque source peut déclarer un <strong>Champ de regroupement spatial</strong> optionnel, par exemple <code>adm1_name</code>, <code>adm2_name</code>, <code>district</code> ou <code>facility</code>. Le moteur produit des résultats par période et par zone sans modifier la line-list :</p>
+<ul>
+<li>les agrégats zone × période sont comptés et affichés dans la carte de la source ;</li>
+<li>ils alimentent l'export CSV par zone ;</li>
+<li>ils alimentent la couche virtuelle cartographique (§ 18).</li>
+</ul>
+<h3 id="couche-virtuelle-agregee-carte">Couche virtuelle agrégée (carte)</h3>
+<p>Lorsqu'une <strong>Couche frontière / géométrie</strong> est sélectionnée et qu'un champ de regroupement est configuré, le widget construit à la volée une couche temporaire en joignant les agrégats période/zone aux géométries de la couche frontière. Elle contient les champs <code>boundary</code>, <code>period</code>, <code>value</code>, <code>count</code> et <code>label</code>.</p>
+<ul>
+<li>La couche est créée côté client et retirée lorsque la période change ou que le widget est démonté.</li>
+<li>Les données sources ne sont jamais modifiées : ni la line-list, ni la couche frontière.</li>
+<li>La symbologie de cette couche se configure dans la carte, comme pour toute autre couche.</li>
+<li>Les libellés de zone doivent être cohérents entre la line-list et la couche frontière, faute de quoi la jointure ne produit aucune géométrie.</li>
+</ul>
+<h2 id="18-limites">18. Limites</h2>
+<ul>
+<li>Le widget ne remplace pas un pipeline ETL de qualité de données.</li>
+<li>Les très grosses line-lists devraient être pré-agrégées côté serveur.</li>
+<li>Le filtrage de la source exige un champ Date natif ; un champ texte de semaine ne peut pas être filtré par le service.</li>
+<li>Le regroupement spatial dépend de la cohérence des libellés entre la line-list et la couche frontière.</li>
+<li>Les taux d'incidence nécessitent un dénominateur de population et doivent être préparés dans une couche analytique dédiée.</li>
+<li>Les intervalles de confiance, moyennes mobiles et seuils d'alerte doivent être calculés avec leurs hypothèses documentées.</li>
+<li>Les petits effectifs doivent être protégés contre la ré-identification.</li>
+</ul></body></html>
