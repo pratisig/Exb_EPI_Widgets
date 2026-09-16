@@ -9,6 +9,16 @@ Versions imprimables et diffusables des documents Markdown du dépôt.
 | `MANUEL_UTILISATION.{html,pdf,docx}` | `../MANUEL_UTILISATION.md` | Manuel utilisateur GIS et surveillance |
 | `GUIDE_TRANSFERT_TEST_GIS_CENTRE.{html,pdf,docx}` | `../GUIDE_TRANSFERT_TEST_GIS_CENTRE.md` | Protocole de test détaillé (scénarios A à L) |
 
+## Artefacts de test et de partage
+
+| Fichier | Contenu | Usage |
+|---|---|---|
+| `epi-aggregator-2.0.0.zip` | Le widget seul, dossier `epi-aggregator` à la racine | À décompresser dans `client\your-extensions\widgets` d'Experience Builder |
+| `epi-aggregator-2.0.0.zip.sha256` | Empreinte SHA-256 de l'archive | Vérification d'intégrité après transfert |
+| `donnees_test/epi_line_list_test.csv` | 226 lignes anonymisées, 2023-2025, 3 zones, avec semaine manquante, date impossible, date ambiguë et libellés de semaine texte | Publication comme table hébergée ArcGIS pour les tests T6, T14, T15b |
+
+Le mode opératoire complet (tester sans Experience Builder, tester dans Experience Builder, partager, transmettre au GIS Centre) est décrit dans `../PARTAGER_ET_TESTER.md`.
+
 ## Régénération
 
 Après toute modification d'un document Markdown, régénérer les fichiers :

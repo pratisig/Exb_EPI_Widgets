@@ -86,6 +86,38 @@ hr { border: 0; border-top: 1px solid #cbd5e1; margin: 14px 0; }
 </ul>
 <h2 id="verification-avant-livraison">Vérification avant livraison</h2>
 <p>Chaque modification livrée est vérifiée par compilation statique (bundling TSX/TS et <code>tsc --strict</code>, dépendances <code>jimu-*</code> remplacées par des stubs de types) : aucune erreur de typage ni de compilation, aucune variable ou import inutilisé. La validation du comportement dans Experience Builder reste manuelle et est décrite dans le protocole de test.</p>
+<h2 id="tester-et-partager">Tester et partager</h2>
+<table>
+<thead>
+<tr>
+<th>Objectif</th>
+<th>Point d'entrée</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Voir le widget fonctionner sans Experience Builder</td>
+<td><code>tools/preview/index.html</code> (voir <code>tools/preview/README.md</code>)</td>
+</tr>
+<tr>
+<td>Tester dans Experience Builder</td>
+<td>§ 3 de <code>PARTAGER_ET_TESTER.md</code></td>
+</tr>
+<tr>
+<td>Vérifier le moteur de calcul (17 contrôles)</td>
+<td>Section 4 de l'aperçu navigateur</td>
+</tr>
+<tr>
+<td>Envoyer la version à un collègue</td>
+<td><code>deliverables/epi-aggregator-2.0.0.zip</code> + empreinte <code>.sha256</code></td>
+</tr>
+<tr>
+<td>Transmettre au GIS Centre</td>
+<td><code>DOSSIER_PROPOSITION_GIS_CENTRE.md</code> et son PDF</td>
+</tr>
+</tbody>
+</table>
+<p>Mode opératoire détaillé : <code>PARTAGER_ET_TESTER.md</code>.</p>
 <h2 id="versions-imprimables">Versions imprimables</h2>
 <p>Les versions PDF, HTML et DOCX de cette description, du manuel, du guide de transfert et du dossier de proposition sont générées dans <code>deliverables/</code> (voir <code>deliverables/README.md</code> pour le mode de régénération).</p>
 <pre><code class="language-text">deliverables/DESCRIPTION_OUTIL_EPI_AGGREGATOR.pdf

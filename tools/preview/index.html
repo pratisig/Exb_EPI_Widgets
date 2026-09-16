@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aperçu hors Experience Builder — Epi Aggregator 2.0</title>
+<link rel="stylesheet" href="../../widgets/epi-aggregator/src/runtime/style.css" />
+<style>
+  body{margin:0;background:#f5f7fa;font-family:Arial,sans-serif;color:#243447}
+  .page{max-width:1100px;margin:0 auto;padding:18px}
+  .banner{background:#fff4d6;border:1px solid #e6cf94;color:#795500;border-radius:6px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+  .banner strong{color:#6b4a00}
+  .panel{background:#fff;border:1px solid #d8e1ea;border-radius:6px;padding:14px;margin-bottom:14px}
+  .panel h2{font-size:15px;margin:0 0 10px;color:#0b4f83}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+  .grid label{display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:3px}
+  .grid select,.grid input{width:100%;padding:5px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;box-sizing:border-box}
+  .checks td:first-child{width:70px;font-weight:700}
+  .checks .ok{color:#0f7b3f}
+  .checks .ko{color:#b3261e}
+  .hint{font-size:11px;color:#64748b;margin-top:8px}
+  code{background:#f1f5f9;border-radius:3px;padding:0 3px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="banner">
+    <strong>Aperçu hors Experience Builder.</strong> Cette page exécute le <em>même moteur d'agrégation</em> et les <em>mêmes styles</em> que le widget
+    (<code>aggregation.ts</code>, <code>comparison.ts</code>, <code>spatialAggregation.ts</code>, <code>runtime/style.css</code>).
+    Elle sert à vérifier les périodes, les statistiques, le cumulé, le repli de la liste et l'export CSV
+    <strong>sans installer Experience Builder</strong>. Elle ne remplace pas le test réel : la carte, les couches ArcGIS,
+    la requête serveur et le rendu jimu ne sont pas reproductibles ici (voir le guide de transfert, tests T1 à T15).
+  </div>
+
+  <div class="panel">
+    <h2>1. Jeu de données</h2>
+    <div class="grid">
+      <div>
+        <label for="dataset">Source</label>
+        <select id="dataset">
+          <option value="../../deliverables/donnees_test/epi_line_list_test.csv">Jeu de test du dépôt (226 lignes, 2023-2025, 3 zones)</option>
+          <option value="fichier">Fichier CSV à moi…</option>
+        </select>
+      </div>
+      <div id="uploadWrap" hidden>
+        <label for="upload">Mon fichier CSV</label>
+        <input id="upload" type="file" accept=".csv,text/csv" />
+      </div>
+    </div>
+    <div class="hint">Colonnes attendues : <code>case_id, onset_date, week_label, adm1_name, status, cases, deaths</code>. Le fichier du dépôt contient volontairement une semaine manquante, une date impossible, une date ambiguë et des libellés de semaine texte.</div>
+  </div>
+
+  <div class="panel">
+    <h2>2. Configuration (comme le panneau Contenu du widget)</h2>
+    <div class="grid">
+      <div>
+        <label for="field">Champ temporel</label>
+        <select id="field">
+          <option value="onset_date|date">onset_date (Date)</option>
+          <option value="week_label|text">week_label (Texte / EpiWeek)</option>
+        </select>
+      </div>
+      <div>
+        <label for="statistic">Statistique</label>
+        <select id="statistic">
+          <option value="count">Count</option>
+          <option value="sum">Sum — deaths</option>
+          <option value="mean">Mean — deaths</option>
+          <option value="max">Max — cases</option>
+          <option value="distinct">Distinct — status</option>
+        </select>
+      </div>
+      <div>
+        <label for="period">Agrégation</label>
+        <select id="period">
+          <option value="epi-week">Semaine épidémiologique</option>
+          <option value="month">Mois</option>
+          <option value="quarter">Trimestre</option>
+          <option value="year">Année</option>
+        </select>
+      </div>
+      <div>
+        <label for="convention">Convention des dates</label>
+        <select id="convention">
+          <option value="dmy">Jour / mois / année</option>
+          <option value="mdy">Mois / jour / année</option>
+          <option value="auto">Automatique</option>
+        </select>
+      </div>
+      <div>
+        <label for="weekMode">Base des semaines</label>
+        <select id="weekMode">
+          <option value="iso">Semaine ISO</option>
+          <option value="outbreak">Depuis le début de l'épidémie</option>
+        </select>
+      </div>
+      <div>
+        <label for="outbreakStart">Début de l'épidémie</label>
+        <input id="outbreakStart" type="date" value="2024-01-01" />
+      </div>
+      <div>
+        <label for="fill">Périodes sans données</label>
+        <select id="fill">
+          <option value="true">Créer des périodes à zéro</option>
+          <option value="false">Masquer les périodes absentes</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterMode">Mode de filtre</label>
+        <select id="filterMode">
+          <option value="cumulative">Progressif / cumulatif</option>
+          <option value="single">Une seule période</option>
+          <option value="none">Toutes les données</option>
+        </select>
+      </div>
+      <div>
+        <label for="comparison">Analyse temporelle</label>
+        <select id="comparison">
+          <option value="continuous">Série continue</option>
+          <option value="compare-years">Comparer les années</option>
+        </select>
+      </div>
+      <div>
+        <label for="boundary">Regroupement spatial</label>
+        <select id="boundary">
+          <option value="">Aucun</option>
+          <option value="adm1_name">adm1_name</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>3. Rendu (identique aux classes CSS du widget)</h2>
+    <div id="app" class="epi-widget"></div>
+  </div>
+
+  <div class="panel">
+    <h2>4. Contrôles automatiques du moteur</h2>
+    <button id="runChecks">Relancer les 17 contrôles</button>
+    <table class="checks epi-comparison" style="margin-top:10px">
+      <thead><tr><th>État</th><th>Contrôle</th><th>Résultat obtenu</th></tr></thead>
+      <tbody id="checksBody"></tbody>
+    </table>
+    <div class="hint" id="checksSummary"></div>
+  </div>
+</div>
+
+<script src="moteur.js"></script>
+<script src="apercu.js"></script>
+</body>
+</html>

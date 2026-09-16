@@ -57,6 +57,18 @@ Sous Windows, `tools/Start-ExperienceBuilder.ps1` automatise l'activation de Nod
 
 Chaque modification livrée est vérifiée par compilation statique (bundling TSX/TS et `tsc --strict`, dépendances `jimu-*` remplacées par des stubs de types) : aucune erreur de typage ni de compilation, aucune variable ou import inutilisé. La validation du comportement dans Experience Builder reste manuelle et est décrite dans le protocole de test.
 
+## Tester et partager
+
+| Objectif | Point d'entrée |
+|---|---|
+| Voir le widget fonctionner sans Experience Builder | `tools/preview/index.html` (voir `tools/preview/README.md`) |
+| Tester dans Experience Builder | § 3 de `PARTAGER_ET_TESTER.md` |
+| Vérifier le moteur de calcul (17 contrôles) | Section 4 de l'aperçu navigateur |
+| Envoyer la version à un collègue | `deliverables/epi-aggregator-2.0.0.zip` + empreinte `.sha256` |
+| Transmettre au GIS Centre | `DOSSIER_PROPOSITION_GIS_CENTRE.md` et son PDF |
+
+Mode opératoire détaillé : `PARTAGER_ET_TESTER.md`.
+
 ## Versions imprimables
 
 Les versions PDF, HTML et DOCX de cette description, du manuel, du guide de transfert et du dossier de proposition sont générées dans `deliverables/` (voir `deliverables/README.md` pour le mode de régénération).
